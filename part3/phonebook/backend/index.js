@@ -16,6 +16,7 @@ app.use(morgan((tokens, request, response) => {
   }
   return components.join(' ')
 }))
+app.use(express.static('backend/static'))
 
 let phonebookData = [
     { 
