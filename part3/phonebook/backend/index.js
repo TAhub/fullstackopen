@@ -1,6 +1,27 @@
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const mongoose = require('mongoose')
+
+// Set up Mongoose.
+const password = process.argv[2]
+const url = `mongodb+srv://theodoreabshire_db_user:${password}@fullstackopen.cnmbler.mongodb.net/?retryWrites=true&w=majority&appName=FullStackOpen`
+mongoose.set('strictQuery', true)
+mongoose.connect(url)
+
+// Create a schema for Person entries.
+const personSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+const Person = mongoose.model('Person', personSchema)
 
 app.use(express.json())
 app.use(morgan((tokens, request, response) => {
@@ -18,31 +39,10 @@ app.use(morgan((tokens, request, response) => {
 }))
 app.use(express.static('backend/static'))
 
-let phonebookData = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/api/persons', (request, response) => {
-  response.json(phonebookData)
+  Person.find({}).then(result => {
+    response.json(result)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -56,12 +56,17 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
+  /*
   const id = request.params.id
   phonebookData = phonebookData.filter(person => person.id !== id)
   response.status(204).end()
+  */
+  response.status(404).end() // TODO: re-implement
 })
 
 app.post('/api/persons', (request, response) => {
+  response.status(404).end() // TODO: re-implement
+  /*
   //const id = phonebookData.length > 0 ? 1 + Math.max(...phonebookData.map(p => Number(p.id))) : 1
   const id = Math.floor(Math.random() * 1000000)
   const newPerson = request.body
@@ -77,15 +82,18 @@ app.post('/api/persons', (request, response) => {
   newPerson.id = String(id)
   phonebookData = phonebookData.concat(newPerson)
   response.json(newPerson)
+  */
 })
 
 app.get('/info', (request, response) => {
-  const numPeople = phonebookData.length
-  const date = new Date()
-  response.send(
-    '<p>Phonebook has info for ' + numPeople + ' people</p>' +
-    '<p>' + date + '</p>'
-  )
+  Person.find({}).then(result => {
+    const numPeople = result.length
+    const date = new Date()
+    response.send(
+      '<p>Phonebook has info for ' + numPeople + ' people</p>' +
+      '<p>' + date + '</p>'
+    )
+  })
 })
 
 const PORT = process.env.PORT || 3001
