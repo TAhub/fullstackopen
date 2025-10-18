@@ -29,12 +29,11 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const data = phonebookData.find(person => person.id === id)
-  if (data) {
-    response.json(data)
-  } else {
+  Person.findById(id).then(person => {
+    response.json(person);
+  }).catch(error => {
     response.status(404).end()
-  }
+  });
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -52,17 +51,16 @@ app.post('/api/persons', (request, response) => {
   if (!newPerson.number) {
     return response.status(400).json({error: 'name missing'})
   }
-  Person.find({name: newPerson.name}).then(result => {
-    if (result.length > 0) {
+  Person.find({name: newPerson.name}).then(existingPersons => {
+    if (existingPersons.length > 0) {
       return response.status(400).json({error: 'name already exists'})
     }
     const person = new Person({
       name: newPerson.name,
       number: newPerson.number,
     })
-    person.save().then(result => {
-      console.log(`added ${person.name} number ${person.number} to phonebook`)
-      response.json(newPerson);
+    person.save().then(savedPerson => {
+      response.json(savedPerson);
     })
   });
 })
