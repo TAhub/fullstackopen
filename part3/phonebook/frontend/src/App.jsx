@@ -41,7 +41,9 @@ const App = () => {
     personService.create(newPerson).then(response => {
       setPersons(persons.concat(response.data))
       showNotification({text: `Added ${newPerson.name}`, error: false})
-    })
+    }).catch(error => {
+      showNotification({text: error.response.data.error, error: true})
+    });
   }
 
   const handleDeleteClick = (id) => {

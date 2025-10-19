@@ -67,12 +67,6 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
   const newPerson = request.body
-  if (!newPerson.name) {
-    return response.status(400).json({error: 'name missing'})
-  }
-  if (!newPerson.number) {
-    return response.status(400).json({error: 'name missing'})
-  }
   Person.find({name: newPerson.name}).then(existingPersons => {
     if (existingPersons.length > 0) {
       return response.status(400).json({error: 'name already exists'})
