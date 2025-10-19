@@ -17,7 +17,8 @@ app.use(morgan((tokens, request, response) => {
     tokens.res(request, response, 'content-length'), '-',
     tokens['response-time'](request, response), 'ms'
   ]
-  if (tokens.method(request, response) == 'POST') {
+  const method = tokens.method(request, response)
+  if (method == 'POST' || method == 'PUT') {
     components.push(JSON.stringify(request.body))
   }
   return components.join(' ')
@@ -47,6 +48,20 @@ app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.findByIdAndDelete(id).then(result => {
     response.status(204).end()
+  }).catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response) => {
+  const newPerson = request.body
+  Person.findById(request.params.id).then(person => {
+    if (!person) {
+      return response.status(404).end()
+    }
+    person.name = newPerson.name
+    person.number = newPerson.number
+    return person.save().then(updatedPerson => {
+      response.json(updatedPerson)
+    }).catch(error => next(error))
   }).catch(error => next(error))
 })
 
