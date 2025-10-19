@@ -5,6 +5,9 @@ const Person = require('./models/person')
 
 const app = express()
 
+// Define first-pass middleware:
+
+app.use(express.static('backend/static'))
 app.use(express.json())
 app.use(morgan((tokens, request, response) => {
   const components = [
@@ -19,28 +22,32 @@ app.use(morgan((tokens, request, response) => {
   }
   return components.join(' ')
 }))
-app.use(express.static('backend/static'))
+
+
+// Define request handlers:
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(result => {
     response.json(result)
-  })
+  }).catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Person.findById(id).then(person => {
-    response.json(person);
-  }).catch(error => {
-    response.status(404).end()
-  });
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.findByIdAndDelete(id).then(result => {
     response.status(204).end()
-  })
+  }).catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
@@ -60,9 +67,9 @@ app.post('/api/persons', (request, response) => {
       number: newPerson.number,
     })
     person.save().then(savedPerson => {
-      response.json(savedPerson);
-    })
-  });
+      response.json(savedPerson)
+    }).catch(error => next(error))
+  }).catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -73,8 +80,26 @@ app.get('/info', (request, response) => {
       '<p>Phonebook has info for ' + numPeople + ' people</p>' +
       '<p>' + date + '</p>'
     )
-  })
+  }).catch(error => next(error))
 })
+
+
+// Define error/fallback handlers:
+
+app.use((request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+})
+
+app.use((error, request, response, next) => {
+  console.log('Error:', error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+  next(error)
+})
+
+
+// And now listen:
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`)
