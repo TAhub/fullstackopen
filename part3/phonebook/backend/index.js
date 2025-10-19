@@ -27,7 +27,7 @@ app.use(morgan((tokens, request, response) => {
 
 // Define request handlers:
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(result => {
     response.json(result)
   }).catch(error => next(error))
@@ -44,14 +44,14 @@ app.get('/api/persons/:id', (request, response, next) => {
   }).catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   Person.findByIdAndDelete(id).then(result => {
     response.status(204).end()
   }).catch(error => next(error))
 })
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const newPerson = request.body
   Person.findById(request.params.id).then(person => {
     if (!person) {
@@ -65,7 +65,7 @@ app.put('/api/persons/:id', (request, response) => {
   }).catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const newPerson = request.body
   if (!newPerson.name) {
     return response.status(400).json({error: 'name missing'})
@@ -87,7 +87,7 @@ app.post('/api/persons', (request, response) => {
   }).catch(error => next(error))
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   Person.find({}).then(result => {
     const numPeople = result.length
     const date = new Date()
