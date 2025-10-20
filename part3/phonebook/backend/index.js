@@ -18,7 +18,7 @@ app.use(morgan((tokens, request, response) => {
     tokens['response-time'](request, response), 'ms'
   ]
   const method = tokens.method(request, response)
-  if (method == 'POST' || method == 'PUT') {
+  if (method === 'POST' || method === 'PUT') {
     components.push(JSON.stringify(request.body))
   }
   return components.join(' ')
@@ -46,7 +46,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  Person.findByIdAndDelete(id).then(result => {
+  Person.findByIdAndDelete(id).then(() => {
     response.status(204).end()
   }).catch(error => next(error))
 })
@@ -67,9 +67,9 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.post('/api/persons', (request, response, next) => {
   const newPerson = request.body
-  Person.find({name: newPerson.name}).then(existingPersons => {
+  Person.find({ name: newPerson.name }).then(existingPersons => {
     if (existingPersons.length > 0) {
-      return response.status(400).json({error: 'name already exists'})
+      return response.status(400).json({ error: 'name already exists' })
     }
     const person = new Person({
       name: newPerson.name,

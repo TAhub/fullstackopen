@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {
-  console.log(`did not provide a password!`)
+  console.log('did not provide a password!')
   process.exit(1)
 }
 
@@ -17,7 +17,7 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-if (process.argv.length == 3) {
+if (process.argv.length === 3) {
   // This is a query.
   Person.find({}).then(result => {
     result.forEach(person => {
@@ -25,13 +25,13 @@ if (process.argv.length == 3) {
     })
     mongoose.connection.close()
   })
-} else if (process.argv.length == 5) {
+} else if (process.argv.length === 5) {
   // This is an add operation.
   const person = new Person({
     name: process.argv[3],
     number: process.argv[4],
   })
-  person.save().then(result => {
+  person.save().then(() => {
     console.log(`added ${person.name} number ${person.number} to phonebook`)
     mongoose.connection.close()
   })

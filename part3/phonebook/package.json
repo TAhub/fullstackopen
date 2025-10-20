@@ -6,6 +6,8 @@
   "scripts": {
     "backendStart": "node backend/index.js",
     "backendDev": "node --watch backend/index.js",
+    "backendLint": "cd backend && eslint .",
+    "backendLintFix": "cd backend && eslint . --fix",
     "frontendDev": "cd frontend && vite",
     "frontendBuild": "cd frontend && vite build",
     "frontendLint": "cd frontend && eslint .",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
+    "@stylistic/eslint-plugin-js": "^4.4.1",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
