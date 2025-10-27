@@ -19,6 +19,12 @@ describe('blogs', () => {
     assert.strictEqual(blogs.length, 1)
     assert.strictEqual(blogs[0].title, 'On Instinct')
   })
+
+  test('rename the default _id property to id', async () => {
+    const blogs = (await api.get('/api/blogs')).body
+    assert.ok(blogs[0].id, '"id" is not present')
+    assert.strictEqual(!blogs[0]._id, true, '"_id" is still present')
+  })
 })
 
 after(async () => {
