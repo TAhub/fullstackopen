@@ -45,6 +45,23 @@ describe('blogs', () => {
     assert.strictEqual(blogs.length, 0)
   })
 
+  test('can have their likes updated', async () => {
+    const oldBlog = (await api.get('/api/blogs')).body[0]
+    const modifiedBlog = {
+      ...oldBlog,
+      likes: oldBlog.likes + 1
+    }
+    await api
+      .put(`/api/blogs/${oldBlog.id}`)
+      .send(modifiedBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    const newBlog = (await api.get('/api/blogs')).body[0]
+    assert.strictEqual(oldBlog.author, newBlog.author)
+    assert.strictEqual(oldBlog.title, newBlog.title)
+    assert.strictEqual(oldBlog.likes + 1, newBlog.likes)
+  })
+
   describe('POSTing a blog', () => {
     test('adds the blog to the list', async () => {
       const oldBlogs = (await api.get('/api/blogs')).body
