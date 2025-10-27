@@ -43,6 +43,17 @@ describe('blogs', () => {
     assert.strictEqual(newBlogs.length, oldBlogs.length + 1, 'blog count did not increase correctly')
     assert.strictEqual(newBlogs[newBlogs.length - 1].likes, newBlog.likes, 'new blog was saved incorrectly')
   })
+
+  test('fills in 0 if likes is unset on POST', async () => {
+    const newBlog = {
+      title: "Fake Blog",
+      author: "Author",
+      url: "https://fullstackopen.com/"
+    }
+    await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
+    const blogs = (await api.get('/api/blogs')).body
+    assert.strictEqual(blogs[blogs.length - 1].likes, 0)
+  })
 })
 
 after(async () => {
