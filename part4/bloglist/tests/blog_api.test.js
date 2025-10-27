@@ -54,6 +54,24 @@ describe('blogs', () => {
     const blogs = (await api.get('/api/blogs')).body
     assert.strictEqual(blogs[blogs.length - 1].likes, 0)
   })
+
+  test('errors if title is unset on POST', async () => {
+    const newBlog = {
+      author: "Author",
+      url: "https://fullstackopen.com/",
+      likes: 0
+    }
+    await api.post('/api/blogs').send(newBlog).expect(400)
+  })
+
+  test('errors if author is unset on POST', async () => {
+    const newBlog = {
+      title: "Fake Blog",
+      url: "https://fullstackopen.com/",
+      likes: 0
+    }
+    await api.post('/api/blogs').send(newBlog).expect(400)
+  })
 })
 
 after(async () => {
