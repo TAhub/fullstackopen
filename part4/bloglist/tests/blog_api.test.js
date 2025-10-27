@@ -25,6 +25,13 @@ describe('blogs', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
+  
+  test('can be deleted', async () => {
+    const blog = (await api.get('/api/blogs')).body[0]
+    await api.delete(`/api/blogs/${blog.id}`).expect(204)
+    const blogs = (await api.get('/api/blogs')).body
+    assert.strictEqual(blogs.length, 0)
+  })
 
   describe('POSTing a blog', () => {
     test('returns the expected blogs', async () => {
