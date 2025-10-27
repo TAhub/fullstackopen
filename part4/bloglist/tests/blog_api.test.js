@@ -25,7 +25,19 @@ describe('blogs', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
   })
-  
+
+  test('returns the expected blogs', async () => {
+    const blogs = (await api.get('/api/blogs')).body
+    assert.strictEqual(blogs.length > 0, true, 'no blogs present')
+    assert.strictEqual(blogs[0].title, 'On Instinct')
+  })
+
+  test('rename the default _id property to id', async () => {
+    const blogs = (await api.get('/api/blogs')).body
+    assert.ok(blogs[0].id, '"id" is not present')
+    assert.strictEqual(!blogs[0]._id, true, '"_id" is still present')
+  })
+
   test('can be deleted', async () => {
     const blog = (await api.get('/api/blogs')).body[0]
     await api.delete(`/api/blogs/${blog.id}`).expect(204)
@@ -34,19 +46,7 @@ describe('blogs', () => {
   })
 
   describe('POSTing a blog', () => {
-    test('returns the expected blogs', async () => {
-      const blogs = (await api.get('/api/blogs')).body
-      assert.strictEqual(blogs.length > 0, true, 'no blogs present')
-      assert.strictEqual(blogs[0].title, 'On Instinct')
-    })
-
-    test('rename the default _id property to id', async () => {
-      const blogs = (await api.get('/api/blogs')).body
-      assert.ok(blogs[0].id, '"id" is not present')
-      assert.strictEqual(!blogs[0]._id, true, '"_id" is still present')
-    })
-
-    test('can post new blogs', async () => {
+    test('adds the blog to the list', async () => {
       const oldBlogs = (await api.get('/api/blogs')).body
       const newBlog = {
         title: "Fake Blog",
