@@ -18,8 +18,21 @@ usersRouter.post('/', async (request, response) => {
   }
   const passwordHash = await bcrypt.hash(password, config.PASSWORD_HASH_SALT_ROUNDS)
   const user = new User({ userName, name, passwordHash })
-  const result = await user.save()
-  response.status(201).json(result)
+  try {
+    const result = await user.save()
+    return response.status(201).json(result)
+  } catch (error) {
+    if (error.name === 'MongoServerError') {
+      response.status(400).json({ error: 'userName is already taken' })
+    } else if (error.name === 'ValidationError') {
+      if (error.errors.userName !== undefined) {
+        if (error.errors.userName.kind === 'minlength') {
+          response.status(400).json({ error: 'userName is too short' })
+        }
+      }
+    }
+    return response.status(400).json(error)
+  }
 })
 
 usersRouter.delete('/:id', async (request, response) => {

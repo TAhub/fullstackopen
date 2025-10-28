@@ -50,6 +50,32 @@ describe('users', () => {
       }
       await api.post('/api/users').send(newBlog).expect(400)
     })
+
+    test('errors if password is too short', async () => {
+      const newBlog = {
+        userName: 'jerDawg',
+        name: 'jeremy',
+        password: 'sw'
+      }
+      await api.post('/api/users').send(newBlog).expect(400)
+    })
+
+    test('errors if password is unset', async () => {
+      const newBlog = {
+        name: 'jeremy',
+        password: 'swordfish'
+      }
+      await api.post('/api/users').send(newBlog).expect(400)
+    })
+
+    test('errors if userName is too short', async () => {
+      const newBlog = {
+        userName: 'je',
+        name: 'jeremy',
+        password: 'swordfish'
+      }
+      await api.post('/api/users').send(newBlog).expect(400)
+    })
   })
 })
 
