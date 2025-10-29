@@ -4,19 +4,16 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const testHelper = require('../utils/test_helper')
 
 const api = supertest(app)
 
+let userId = '';
+
 describe('blogs', () => {
   beforeEach(async () => {
-    await Blog.deleteMany({})
-    let initialBlog = new Blog({
-      title: 'On Instinct',
-      author: 'Doctor Breen',
-      url: "https://fullstackopen.com/",
-      likes: 0
-    })
-    await initialBlog.save()
+    userId = await testHelper.setupStartingUserAndBlog()
   })
 
   test('are returned as json', async () => {
@@ -24,6 +21,12 @@ describe('blogs', () => {
       .get('/api/blogs')
       .expect(200)
       .expect('Content-Type', /application\/json/)
+  })
+
+  test('contains user data', async () => {
+    const blog = (await api.get('/api/blogs')).body[0]
+    assert.ok(blog.user)
+    assert.strictEqual(blog.user.userName, 'userName')
   })
 
   test('returns the expected blogs', async () => {
@@ -69,7 +72,8 @@ describe('blogs', () => {
         title: "Fake Blog",
         author: "Author",
         url: "https://fullstackopen.com/",
-        likes: Math.floor(Math.random(1000))
+        likes: Math.floor(Math.random(1000)),
+        userId
       }
       const result = await api
         .post('/api/blogs')
@@ -85,7 +89,8 @@ describe('blogs', () => {
       const newBlog = {
         title: "Fake Blog",
         author: "Author",
-        url: "https://fullstackopen.com/"
+        url: "https://fullstackopen.com/",
+        userId
       }
       await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
       const blogs = (await api.get('/api/blogs')).body
@@ -96,13 +101,25 @@ describe('blogs', () => {
       const newBlog = {
         author: "Author",
         url: "https://fullstackopen.com/",
-        likes: 0
+        likes: 0,
+        userId
       }
       await api.post('/api/blogs').send(newBlog).expect(400)
     })
 
     test('errors if author is unset', async () => {
       const newBlog = {
+        title: "Fake Blog",
+        url: "https://fullstackopen.com/",
+        likes: 0,
+        userId
+      }
+      await api.post('/api/blogs').send(newBlog).expect(400)
+    })
+
+    test('errors if userId is unset', async () => {
+      const newBlog = {
+        author: "Author",
         title: "Fake Blog",
         url: "https://fullstackopen.com/",
         likes: 0

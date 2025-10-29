@@ -3,19 +3,15 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const Blog = require('../models/blog')
 const User = require('../models/user')
+const testHelper = require('../utils/test_helper')
 
 const api = supertest(app)
 
 describe('users', () => {
   beforeEach(async () => {
-    await User.deleteMany({})
-    let initialUser = new User({
-      userName: 'userName',
-      name: 'name',
-      passwordHash: 'passwordHash'
-    })
-    await initialUser.save()
+    await testHelper.setupStartingUserAndBlog()
   })
 
   test('are returned as json', async () => {
@@ -23,6 +19,13 @@ describe('users', () => {
       .get('/api/users')
       .expect(200)
       .expect('Content-Type', /application\/json/)
+  })
+
+  test('contains blog data', async () => {
+    const user = (await api.get('/api/users')).body[0]
+    assert.ok(user.blogs)
+    assert.strictEqual(user.blogs.length, 1)
+    assert.strictEqual(user.blogs[0].title, 'On Instinct')
   })
 
   describe('POSTing a user', () => {
