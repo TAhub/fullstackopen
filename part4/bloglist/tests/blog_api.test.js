@@ -51,9 +51,24 @@ describe('blogs', () => {
 
   test('can be deleted', async () => {
     const blog = (await api.get('/api/blogs')).body[0]
-    await api.delete(`/api/blogs/${blog.id}`).expect(204)
+    await api.delete(`/api/blogs/${blog.id}`).set('Authorization', authHeader).expect(204)
     const blogs = (await api.get('/api/blogs')).body
     assert.strictEqual(blogs.length, 0)
+  })
+
+  test('cannot be deleted by the wrong user', async () => {
+    let secondUser = new User({
+      userName: 'userName2',
+      name: 'name2',
+      passwordHash: 'passwordHash2'
+    })
+    const savedSecondUser = await secondUser.save()
+    const secondToken = jwt.sign({
+      username: savedSecondUser.userName,
+      id: savedSecondUser.id
+    }, config.TOKEN_SECRET)
+    const blog = (await api.get('/api/blogs')).body[0]
+    await api.delete(`/api/blogs/${blog.id}`).set('Authorization', `Bearer ${secondToken}`).expect(401)
   })
 
   test('can have their likes updated', async () => {

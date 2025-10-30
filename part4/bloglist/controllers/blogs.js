@@ -42,13 +42,20 @@ blogsRouter.put('/:id', async (request, response) => {
 
 blogsRouter.delete('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
-  if (blog.user !== undefined) {
-    const user = await User.findById(blog.user._id)
-    const idx = user.blogs.indexOf(blog._id)
-    if (idx >= 0) {
-      user.blogs = user.blogs.splice(idx)
-      await user.save()
-    }
+  if (blog.user === undefined) {
+    return response.status(401).send({ error: 'no-one can delete userless blogs. NO-ONE!' })
+  }
+  const user = request.user
+  if (!user) {
+    return response.status(401).send({ error: 'invalid token' })
+  }
+  if (blog.user._id.toString() !== user.id.toString()) {
+    return response.status(401).send({ error: 'only you can delete your blogs' })
+  }
+  const idx = user.blogs.indexOf(blog._id)
+  if (idx >= 0) {
+    user.blogs = user.blogs.splice(idx)
+    await user.save()
   }
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
