@@ -1,4 +1,5 @@
 const { test, describe, after, beforeEach } = require('node:test')
+const jwt = require('jsonwebtoken')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -6,14 +7,21 @@ const app = require('../app')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const testHelper = require('../utils/test_helper')
+const config = require('../utils/config')
 
 const api = supertest(app)
 
-let userId = '';
+let authHeader = '';
 
 describe('blogs', () => {
   beforeEach(async () => {
-    userId = await testHelper.setupStartingUserAndBlog()
+    const userId = await testHelper.setupStartingUserAndBlog()
+    const user = await User.findById(userId)
+    const token = jwt.sign({
+      username: user.userName,
+      id: userId
+    }, config.TOKEN_SECRET)
+    authHeader = `Bearer ${token}`
   })
 
   test('are returned as json', async () => {
@@ -72,11 +80,11 @@ describe('blogs', () => {
         title: "Fake Blog",
         author: "Author",
         url: "https://fullstackopen.com/",
-        likes: Math.floor(Math.random(1000)),
-        userId
+        likes: Math.floor(Math.random(1000))
       }
       const result = await api
         .post('/api/blogs')
+        .set('Authorization', authHeader)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -89,10 +97,9 @@ describe('blogs', () => {
       const newBlog = {
         title: "Fake Blog",
         author: "Author",
-        url: "https://fullstackopen.com/",
-        userId
+        url: "https://fullstackopen.com/"
       }
-      await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
+      await api.post('/api/blogs').set('Authorization', authHeader).send(newBlog).expect(201).expect('Content-Type', /application\/json/)
       const blogs = (await api.get('/api/blogs')).body
       assert.strictEqual(blogs[blogs.length - 1].likes, 0)
     })
@@ -101,30 +108,28 @@ describe('blogs', () => {
       const newBlog = {
         author: "Author",
         url: "https://fullstackopen.com/",
-        likes: 0,
-        userId
+        likes: 0
       }
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api.post('/api/blogs').set('Authorization', authHeader).send(newBlog).expect(400)
     })
 
     test('errors if author is unset', async () => {
       const newBlog = {
         title: "Fake Blog",
         url: "https://fullstackopen.com/",
-        likes: 0,
-        userId
+        likes: 0
       }
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api.post('/api/blogs').set('Authorization', authHeader).send(newBlog).expect(400)
     })
 
-    test('errors if userId is unset', async () => {
+    test('errors if an authorization header is not set', async () => {
       const newBlog = {
         author: "Author",
         title: "Fake Blog",
         url: "https://fullstackopen.com/",
         likes: 0
       }
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api.post('/api/blogs').send(newBlog).expect(401)
     })
   })
 })
