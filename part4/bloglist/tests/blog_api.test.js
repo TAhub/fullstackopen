@@ -79,6 +79,7 @@ describe('blogs', () => {
     }
     await api
       .put(`/api/blogs/${oldBlog.id}`)
+      .set('Authorization', authHeader)
       .send(modifiedBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
