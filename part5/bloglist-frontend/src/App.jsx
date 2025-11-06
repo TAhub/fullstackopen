@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import NewBlog from './components/NewBlog'
 import Login from './components/Login'
 import Logout from './components/Logout'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -14,19 +15,24 @@ const App = () => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogUrl, setNewBlogUrl] = useState('')
+  const [notification, setNotification] = useState(null)
 
+  const showNotification = (notification) => {
+    setNotification(notification)
+    setTimeout(() => setNotification(null), 4000)
+  }
   const handleCreateBlogButton = async (event) => {
     event.preventDefault()
     try {
       const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
-      console.log('SUCCESSFULLY POSTED BLOG!')
+      showNotification({text: 'Successfully posted a blog!'})
       setBlogs(blogs.concat(newBlog))
       // Also, clear the old values.
       setNewBlogTitle('')
       setNewBlogAuthor('')
       setNewBlogUrl('')
     } catch (error) {
-      console.log('FAILED TO POST BLOG!', error)
+      showNotification({text: 'Failed to post blog!', error})
     }
   }
   const handleNewBlogTitleChanged = (event) => {
@@ -42,19 +48,19 @@ const App = () => {
     event.preventDefault()
     try {
       const newUser = await loginService.login(loginUsername, loginPassword)
-      console.log('SUCCESSFUL LOGIN!')
+      showNotification({text: 'Successfully logged in!'})
       setUser(newUser)
       // Also, forget the login username and password.
       setLoginUsername('')
       setLoginPassword('')
     } catch(error) {
-      console.log('FAILED LOGIN!', error)
+      showNotification({text: 'Failed to log in!', error})
     }
   }
   const handleLogoutButton = (event) => {
     event.preventDefault()
     setUser(null)
-    // TODO: anything else?
+    showNotification({text: 'Successfully logged out!'})
   }
   const handleLoginUsernameChanged = (event) => {
     setLoginUsername(event.target.value)
@@ -72,6 +78,7 @@ const App = () => {
   if (user === null) {
     return (
       <div>
+        <Notification notification={notification} />
         <h2>Log in to application</h2>
         <Login onLoginButton={handleLoginButton}
             loginUsername={loginUsername} onLoginUsernameChanged={handleLoginUsernameChanged}
@@ -82,6 +89,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification notification={notification} />
       <h2>user management</h2>
       <Logout user={user} onLogoutButton={handleLogoutButton} />
       <h2>blogs</h2>
