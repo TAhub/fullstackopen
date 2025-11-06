@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import NewBlog from './components/NewBlog'
 import Login from './components/Login'
 import Logout from './components/Logout'
 import blogService from './services/blogs'
@@ -10,7 +11,33 @@ const App = () => {
   const [loginPassword, setLoginPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
+  const [newBlogTitle, setNewBlogTitle] = useState('')
+  const [newBlogAuthor, setNewBlogAuthor] = useState('')
+  const [newBlogUrl, setNewBlogUrl] = useState('')
 
+  const handleCreateBlogButton = async (event) => {
+    event.preventDefault()
+    try {
+      const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
+      console.log('SUCCESSFULLY POSTED BLOG!')
+      setBlogs(blogs.concat(newBlog))
+      // Also, clear the old values.
+      setNewBlogTitle('')
+      setNewBlogAuthor('')
+      setNewBlogUrl('')
+    } catch (error) {
+      console.log('FAILED TO POST BLOG!', error)
+    }
+  }
+  const handleNewBlogTitleChanged = (event) => {
+    setNewBlogTitle(event.target.value)
+  }
+  const handleNewBlogAuthorChanged = (event) => {
+    setNewBlogAuthor(event.target.value)
+  }
+  const handleNewBlogUrlChanged = (event) => {
+    setNewBlogUrl(event.target.value)
+  }
   const handleLoginButton = async (event) => {
     event.preventDefault()
     try {
@@ -61,6 +88,11 @@ const App = () => {
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
+      <h2>new blog</h2>
+      <NewBlog onCreateBlogButton={handleCreateBlogButton}
+          newBlogTitle={newBlogTitle} onNewBlogTitleChanged={handleNewBlogTitleChanged}
+          newBlogAuthor={newBlogAuthor} onNewBlogAuthorChanged={handleNewBlogAuthorChanged}
+          newBlogUrl={newBlogUrl} onNewBlogUrlChanged={handleNewBlogUrlChanged} />
     </div>
   )
 }
