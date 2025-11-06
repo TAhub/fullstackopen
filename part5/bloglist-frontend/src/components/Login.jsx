@@ -1,10 +1,14 @@
 const Login = ({ onLoginButton, loginUsername, onLoginUsernameChanged, loginPassword, onLoginPasswordChanged }) => (
   <form>
     <div>
-      username <input value={loginUsername} onChange={onLoginUsernameChanged} />
+      <label>
+        username <input type="text" value={loginUsername} onChange={onLoginUsernameChanged} />
+      </label>
     </div>
     <div>
-      password <input value={loginPassword} onChange={onLoginPasswordChanged} />
+      <label>
+        password <input type="text" value={loginPassword} onChange={onLoginPasswordChanged} />
+      </label>
     </div>
     <button onClick={onLoginButton}>Login</button>
   </form>

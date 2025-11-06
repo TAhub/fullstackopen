@@ -1,13 +1,19 @@
 const Login = ({ onCreateBlogButton, newBlogTitle, onNewBlogTitleChanged, newBlogAuthor, onNewBlogAuthorChanged, newBlogUrl, onNewBlogUrlChanged }) => (
   <form>
     <div>
-      title <input value={newBlogTitle} onChange={onNewBlogTitleChanged} />
+      <label>
+        title <input type="text" value={newBlogTitle} onChange={onNewBlogTitleChanged} />
+      </label>
     </div>
     <div>
-      author <input value={newBlogAuthor} onChange={onNewBlogAuthorChanged} />
+      <label>
+        author <input type="text" value={newBlogAuthor} onChange={onNewBlogAuthorChanged} />
+      </label>
     </div>
     <div>
-      url <input value={newBlogUrl} onChange={onNewBlogUrlChanged} />
+      <label>
+        url <input type="text" value={newBlogUrl} onChange={onNewBlogUrlChanged} />
+      </label>
     </div>
     <button onClick={onCreateBlogButton}>Create Blog</button>
   </form>
