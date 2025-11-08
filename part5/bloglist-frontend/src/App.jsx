@@ -16,6 +16,7 @@ const App = () => {
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
   const [newBlogUrl, setNewBlogUrl] = useState('')
   const [notification, setNotification] = useState(null)
+  const [newBlogVisible, setNewBlogVisible] = useState(false)
 
   const showNotification = (notification) => {
     setNotification(notification)
@@ -31,6 +32,8 @@ const App = () => {
       setNewBlogTitle('')
       setNewBlogAuthor('')
       setNewBlogUrl('')
+      // Finally, hide the add form.
+      setNewBlogVisible(false)
     } catch (error) {
       showNotification({text: 'Failed to post blog!', error})
     }
@@ -87,20 +90,28 @@ const App = () => {
     )
   }
 
+  const hideWhenNewBlogVisible = { display: newBlogVisible ? 'none' : '' }
+  const showWhenNewBlogVisible = { display: newBlogVisible ? '' : 'none' }
+
   return (
     <div>
       <Notification notification={notification} />
-      <h2>user management</h2>
+      <h2>User Management</h2>
       <Logout user={user} onLogoutButton={handleLogoutButton} />
-      <h2>blogs</h2>
+      <h2>Blogs</h2>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
-      <h2>new blog</h2>
-      <NewBlog onCreateBlogButton={handleCreateBlogButton}
-          newBlogTitle={newBlogTitle} onNewBlogTitleChanged={handleNewBlogTitleChanged}
-          newBlogAuthor={newBlogAuthor} onNewBlogAuthorChanged={handleNewBlogAuthorChanged}
-          newBlogUrl={newBlogUrl} onNewBlogUrlChanged={handleNewBlogUrlChanged} />
+      <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
+      <div style={showWhenNewBlogVisible}>
+        <h2>New Blog</h2>
+        <NewBlog
+            onCreateBlogButton={handleCreateBlogButton}
+            newBlogTitle={newBlogTitle} onNewBlogTitleChanged={handleNewBlogTitleChanged}
+            newBlogAuthor={newBlogAuthor} onNewBlogAuthorChanged={handleNewBlogAuthorChanged}
+            newBlogUrl={newBlogUrl} onNewBlogUrlChanged={handleNewBlogUrlChanged} />
+        <button onClick={() => setNewBlogVisible(false)}>Cancel</button>
+      </div>
     </div>
   )
 }
