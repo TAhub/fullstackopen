@@ -12,9 +12,6 @@ const App = () => {
   const [loginPassword, setLoginPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [newBlogTitle, setNewBlogTitle] = useState('')
-  const [newBlogAuthor, setNewBlogAuthor] = useState('')
-  const [newBlogUrl, setNewBlogUrl] = useState('')
   const [notification, setNotification] = useState(null)
   const [newBlogVisible, setNewBlogVisible] = useState(false)
 
@@ -22,30 +19,17 @@ const App = () => {
     setNotification(notification)
     setTimeout(() => setNotification(null), 4000)
   }
-  const handleCreateBlogButton = async (event) => {
-    event.preventDefault()
+  const createNewBlog = async (newBlogTitle, newBlogAuthor, newBlogUrl) => {
+    // Hide the add form.
+    setNewBlogVisible(false)
+    // Then try to create a blog.
     try {
       const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
       showNotification({text: 'Successfully posted a blog!'})
       setBlogs(blogs.concat(newBlog))
-      // Also, clear the old values.
-      setNewBlogTitle('')
-      setNewBlogAuthor('')
-      setNewBlogUrl('')
-      // Finally, hide the add form.
-      setNewBlogVisible(false)
     } catch (error) {
       showNotification({text: 'Failed to post blog!', error})
     }
-  }
-  const handleNewBlogTitleChanged = (event) => {
-    setNewBlogTitle(event.target.value)
-  }
-  const handleNewBlogAuthorChanged = (event) => {
-    setNewBlogAuthor(event.target.value)
-  }
-  const handleNewBlogUrlChanged = (event) => {
-    setNewBlogUrl(event.target.value)
   }
   const handleLoginButton = async (event) => {
     event.preventDefault()
@@ -105,11 +89,7 @@ const App = () => {
       <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
       <div style={showWhenNewBlogVisible}>
         <h2>New Blog</h2>
-        <NewBlog
-            onCreateBlogButton={handleCreateBlogButton}
-            newBlogTitle={newBlogTitle} onNewBlogTitleChanged={handleNewBlogTitleChanged}
-            newBlogAuthor={newBlogAuthor} onNewBlogAuthorChanged={handleNewBlogAuthorChanged}
-            newBlogUrl={newBlogUrl} onNewBlogUrlChanged={handleNewBlogUrlChanged} />
+        <NewBlog createNewBlog={createNewBlog} />
         <button onClick={() => setNewBlogVisible(false)}>Cancel</button>
       </div>
     </div>
