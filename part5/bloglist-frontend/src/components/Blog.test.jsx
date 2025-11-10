@@ -34,9 +34,19 @@ test('only shows title and author by default', () => {
 test('shows other values after show button is pressed', async () => {
   render(<Blog blog={blog} likeBlog={()=>{}} deleteBlog={()=>{}} userName="OTHER USERNAME" />)
   const user = userEvent.setup()
-  const button = screen.getByText('View')
-  await user.click(button)
+  await user.click(screen.getByText('View'))
   expect(screen.queryByText('URL')).toBeVisible()
   expect(screen.queryByText('likes 10')).toBeVisible()
   expect(screen.queryByText('NAME')).toBeVisible()
+})
+
+test('pressing like button increments likes', async () => {
+  const mockHandler = vi.fn()
+  render(<Blog blog={blog} likeBlog={mockHandler} deleteBlog={()=>{}} userName="OTHER USERNAME" />)
+  const user = userEvent.setup()
+  await user.click(screen.getByText('View'))
+  await user.click(screen.getByText('Like'))
+  expect(mockHandler.mock.calls).toHaveLength(1)
+  await user.click(screen.getByText('Like'))
+  expect(mockHandler.mock.calls).toHaveLength(2)
 })
