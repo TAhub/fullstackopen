@@ -27,47 +27,47 @@ const App = () => {
     // Then try to create a blog.
     try {
       const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
-      showNotification({text: 'Successfully posted a blog!'})
+      showNotification({ text: 'Successfully posted a blog!' })
       setBlogs(blogs.concat(newBlog))
     } catch (error) {
-      showNotification({text: 'Failed to post blog!', error})
+      showNotification({ text: 'Failed to post blog!', error })
     }
   }
   const likeBlog = async (blog) => {
     try {
       const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token)
-      showNotification({text: 'Successfully liked the blog!'})
-      setBlogs(blogs.map(b => b.id != newBlog.id ? b : newBlog))
+      showNotification({ text: 'Successfully liked the blog!' })
+      setBlogs(blogs.map(b => b.id !== newBlog.id ? b : newBlog))
     } catch (error) {
-      showNotification({text: 'Failed to like blog!', error})
+      showNotification({ text: 'Failed to like blog!', error })
     }
   }
   const deleteBlog = async (blog) => {
     try {
       await blogService.remove(blog.id, user.token)
-      showNotification({text: 'Successfully deleted the blog!'})
-      setBlogs(blogs.filter(b => b.id != blog.id))
+      showNotification({ text: 'Successfully deleted the blog!' })
+      setBlogs(blogs.filter(b => b.id !== blog.id))
     } catch (error) {
-      showNotification({text: 'Failed to delete blog!', error})
+      showNotification({ text: 'Failed to delete blog!', error })
     }
   }
   const handleLoginButton = async (event) => {
     event.preventDefault()
     try {
       const newUser = await loginService.login(loginUsername, loginPassword)
-      showNotification({text: 'Successfully logged in!'})
+      showNotification({ text: 'Successfully logged in!' })
       setUser(newUser)
       // Also, forget the login username and password.
       setLoginUsername('')
       setLoginPassword('')
     } catch(error) {
-      showNotification({text: 'Failed to log in!', error})
+      showNotification({ text: 'Failed to log in!', error })
     }
   }
   const handleLogoutButton = (event) => {
     event.preventDefault()
     setUser(null)
-    showNotification({text: 'Successfully logged out!'})
+    showNotification({ text: 'Successfully logged out!' })
   }
   const handleLoginUsernameChanged = (event) => {
     setLoginUsername(event.target.value)
@@ -88,8 +88,8 @@ const App = () => {
         <Notification notification={notification} />
         <h2>Log in to application</h2>
         <Login onLoginButton={handleLoginButton}
-            loginUsername={loginUsername} onLoginUsernameChanged={handleLoginUsernameChanged}
-            loginPassword={loginPassword} onLoginPasswordChanged={handleLoginPasswordChanged} />
+          loginUsername={loginUsername} onLoginUsernameChanged={handleLoginUsernameChanged}
+          loginPassword={loginPassword} onLoginPasswordChanged={handleLoginPasswordChanged} />
       </div>
     )
   }
@@ -98,14 +98,14 @@ const App = () => {
 
   blogs.sort((a, b) => {
     switch (sortMode) {
-      case 'title':
-        return a.title.localeCompare(b.title)
-      case 'author':
-        return a.author.localeCompare(b.author)
-      case 'likes':
-        return a.likes - b.likes
-      default:
-        return a.id.localeCompare(b.id)
+    case 'title':
+      return a.title.localeCompare(b.title)
+    case 'author':
+      return a.author.localeCompare(b.author)
+    case 'likes':
+      return a.likes - b.likes
+    default:
+      return a.id.localeCompare(b.id)
     }
   })
 

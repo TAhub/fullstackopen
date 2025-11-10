@@ -1,4 +1,4 @@
-const SortMode = ({sortMode, setSortMode, sortModes}) => (
+const SortMode = ({ sortMode, setSortMode, sortModes }) => (
   <form>
     {sortModes.map(sm =>
       <div>
