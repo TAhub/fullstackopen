@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import NewBlog from './components/NewBlog'
 import Login from './components/Login'
 import Logout from './components/Logout'
+import SortMode from './components/SortMode'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -14,6 +15,7 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [notification, setNotification] = useState(null)
   const [newBlogVisible, setNewBlogVisible] = useState(false)
+  const [sortMode, setSortMode] = useState('title')
 
   const showNotification = (notification) => {
     setNotification(notification)
@@ -83,6 +85,21 @@ const App = () => {
     )
   }
 
+  const sortModes = ['title', 'author', 'likes']
+
+  blogs.sort((a, b) => {
+    switch (sortMode) {
+      case 'title':
+        return a.title.localeCompare(b.title)
+      case 'author':
+        return a.author.localeCompare(b.author)
+      case 'likes':
+        return a.likes - b.likes
+      default:
+        return a.id.localeCompare(b.id)
+    }
+  })
+
   const hideWhenNewBlogVisible = { display: newBlogVisible ? 'none' : '' }
   const showWhenNewBlogVisible = { display: newBlogVisible ? '' : 'none' }
 
@@ -91,6 +108,8 @@ const App = () => {
       <Notification notification={notification} />
       <h2>User Management</h2>
       <Logout user={user} onLogoutButton={handleLogoutButton} />
+      <h2>Sort</h2>
+      <SortMode sortMode={sortMode} setSortMode={setSortMode} sortModes={sortModes} />
       <h2>Blogs</h2>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} likeBlog={likeBlog} />
