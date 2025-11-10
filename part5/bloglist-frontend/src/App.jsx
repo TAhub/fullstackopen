@@ -31,6 +31,15 @@ const App = () => {
       showNotification({text: 'Failed to post blog!', error})
     }
   }
+  const likeBlog = async (blog) => {
+    try {
+      const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token) // TODO: await and store the result
+      showNotification({text: 'Successfully liked the blog!'})
+      setBlogs(blogs.map(b => b.id != newBlog.id ? b : newBlog))
+    } catch (error) {
+      showNotification({text: 'Failed to like blog!', error})
+    }
+  }
   const handleLoginButton = async (event) => {
     event.preventDefault()
     try {
@@ -84,7 +93,7 @@ const App = () => {
       <Logout user={user} onLogoutButton={handleLogoutButton} />
       <h2>Blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} />
       )}
       <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
       <div style={showWhenNewBlogVisible}>

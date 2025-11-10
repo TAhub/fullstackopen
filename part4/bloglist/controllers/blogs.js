@@ -53,6 +53,7 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   blog.title = request.body.title
   blog.likes = request.body.likes
   const updatedBlog = await blog.save()
+  updatedBlog.user = user
   response.json(updatedBlog)
 })
 

@@ -14,4 +14,12 @@ const post = (title, author, url, token) => {
   return request.then(response => response.data)
 }
 
-export default { getAll, post }
+const put = (title, author, url, likes, id, token) => {
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  }
+  const request = axios.put(baseUrl + '/' + id, {title, author, url, likes}, {headers})
+  return request.then(response => response.data)
+}
+
+export default { getAll, post, put }
