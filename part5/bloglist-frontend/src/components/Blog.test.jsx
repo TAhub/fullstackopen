@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 const blog = {
@@ -28,4 +29,14 @@ test('only shows title and author by default', () => {
   expect(screen.queryByText('URL')).not.toBeVisible()
   expect(screen.queryByText('likes 10')).not.toBeVisible()
   expect(screen.queryByText('NAME')).not.toBeVisible()
+})
+
+test('shows other values after show button is pressed', async () => {
+  render(<Blog blog={blog} likeBlog={()=>{}} deleteBlog={()=>{}} userName="OTHER USERNAME" />)
+  const user = userEvent.setup()
+  const button = screen.getByText('View')
+  await user.click(button)
+  expect(screen.queryByText('URL')).toBeVisible()
+  expect(screen.queryByText('likes 10')).toBeVisible()
+  expect(screen.queryByText('NAME')).toBeVisible()
 })
