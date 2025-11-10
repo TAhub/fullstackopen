@@ -35,11 +35,20 @@ const App = () => {
   }
   const likeBlog = async (blog) => {
     try {
-      const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token) // TODO: await and store the result
+      const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token)
       showNotification({text: 'Successfully liked the blog!'})
       setBlogs(blogs.map(b => b.id != newBlog.id ? b : newBlog))
     } catch (error) {
       showNotification({text: 'Failed to like blog!', error})
+    }
+  }
+  const deleteBlog = async (blog) => {
+    try {
+      await blogService.remove(blog.id, user.token)
+      showNotification({text: 'Successfully deleted the blog!'})
+      setBlogs(blogs.filter(b => b.id != blog.id))
+    } catch (error) {
+      showNotification({text: 'Failed to delete blog!', error})
     }
   }
   const handleLoginButton = async (event) => {
@@ -112,7 +121,7 @@ const App = () => {
       <SortMode sortMode={sortMode} setSortMode={setSortMode} sortModes={sortModes} />
       <h2>Blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} />
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} userName={user.userName} />
       )}
       <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
       <div style={showWhenNewBlogVisible}>

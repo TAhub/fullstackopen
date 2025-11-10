@@ -22,4 +22,11 @@ const put = (title, author, url, likes, id, token) => {
   return request.then(response => response.data)
 }
 
-export default { getAll, post, put }
+const remove = (id, token) => {
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  }
+  return axios.delete(baseUrl + '/' + id, {headers})
+}
+
+export default { getAll, post, put, remove }
