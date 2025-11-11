@@ -20,8 +20,8 @@ describe('Blog app', () => {
   })
 
   test('Login form is shown', async ({ page }) => {
-    await expect(page.getByText('Login')).toBeVisible()
-    await expect(page.getByText('Log Out')).not.toBeVisible()
+    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Log Out' })).not.toBeVisible()
   })
 
   describe('Login', () => {
@@ -29,21 +29,21 @@ describe('Blog app', () => {
       const textboxes = await page.getByRole('textbox').all()
       await textboxes[0].fill(testUsername)
       await textboxes[1].fill(testPassword)
-      await page.getByText('Login').click()
+      await page.getByRole('button', { name: 'Login' }).click()
       // Afterwards, it should no longer be on the login form.
-      await expect(page.getByText('Login')).not.toBeVisible()
-      await expect(page.getByText('Log Out')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Login' })).not.toBeVisible()
+      await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible()
     })
 
     test('fails with incorrect credentials', async ({ page }) => {
       const textboxes = await page.getByRole('textbox').all()
       await textboxes[0].fill(testUsername)
       await textboxes[1].fill('incorrect password dummy')
-      await page.getByText('Login').click()
+      await page.getByRole('button', { name: 'Login' }).click()
       // Afterwards, it should still be in the login form.
       await expect(page.getByText('Failed to log in!')).toBeVisible()
-      await expect(page.getByText('Login')).toBeVisible()
-      await expect(page.getByText('Log Out')).not.toBeVisible()
+      await expect(page.getByRole('button', { name: 'Login' })).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Log Out' })).not.toBeVisible()
     })
   })
 
@@ -52,27 +52,48 @@ describe('Blog app', () => {
       const textboxes = await page.getByRole('textbox').all()
       await textboxes[0].fill(testUsername)
       await textboxes[1].fill(testPassword)
-      await page.getByText('Login').click()
+      await page.getByRole('button', { name: 'Login' }).click()
       // TODO: in a real test suite, I feel like this should be conditional on "succeeds with correct credentials"
     })
     
     test('there are no blogs at first', async ({ page }) => {
-      await expect(page.getByText('View')).not.toBeVisible()
+      await expect(page.getByRole('button', { name: 'View' })).not.toBeVisible()
     })
 
     test('a new blog can be created', async ({ page }) => {
-      await page.getByText('Create New Blog').click()
+      await page.getByRole('button', { name: 'Create New Blog' }).click()
       const textboxes = await page.getByRole('textbox').all()
       await textboxes[0].fill('NEWTITLE')
       await textboxes[1].fill('NEWAUTHOR')
       await textboxes[2].fill('NEWURL')
-      await page.getByText('Create Blog').click()
+      await page.getByRole('button', { name: 'Create Blog' }).click()
       // Give it some time.
-      await page.getByText('View').waitFor()
+      await page.getByRole('button', { name: 'View' }).waitFor()
       // There should now be a blog.
       await expect(page.getByText('NEWTITLE')).toBeVisible()
       await expect(page.getByText('NEWAUTHOR')).toBeVisible()
-      await expect(page.getByText('View')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'View' })).toBeVisible()
+    })
+
+    describe('And there is a blog', () => {
+      beforeEach(async ({ page }) => {
+        await page.getByRole('button', { name: 'Create New Blog' }).click()
+        const textboxes = await page.getByRole('textbox').all()
+        await textboxes[0].fill('NEWTITLE')
+        await textboxes[1].fill('NEWAUTHOR')
+        await textboxes[2].fill('NEWURL')
+        await page.getByRole('button', { name: 'Create Blog' }).click()
+        await page.getByRole('button', { name: 'View' }).waitFor()
+        await page.getByRole('button', { name: 'View' }).click()
+        // TODO: same story here
+      })
+
+      test('it can be liked', async ({ page }) => {
+        await expect(page.getByText('likes 0')).toBeVisible()
+        await page.getByRole('button', { name: 'Like' }).click()
+        await page.getByText('likes 1').waitFor()
+        await expect(page.getByText('likes 1')).toBeVisible()
+      })
     })
   })
 })
