@@ -94,6 +94,13 @@ describe('Blog app', () => {
         await page.getByText('likes 1').waitFor()
         await expect(page.getByText('likes 1')).toBeVisible()
       })
+
+      test('it can be deleted', async ({ page }) => {
+        page.on('dialog', dialog => dialog.accept())
+        await page.getByRole('button', { name: 'Delete' }).click()
+        await page.getByText('NEWTITLE').waitFor({ state: 'detached' })
+        await expect(page.getByText('NEWTITLE')).not.toBeVisible()
+      })
     })
   })
 })
