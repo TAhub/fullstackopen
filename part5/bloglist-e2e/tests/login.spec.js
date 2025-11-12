@@ -11,6 +11,15 @@ const logInHelper = async (page, userName, password) => {
   await page.getByRole('button', { name: 'Login' }).click()
 }
 
+const addBlogHelper = async (page, title, author, url) => {
+  await page.getByRole('button', { name: 'Create New Blog' }).click()
+  const textboxes = await page.getByRole('textbox').all()
+  await textboxes[0].fill(title)
+  await textboxes[1].fill(author)
+  await textboxes[2].fill(url)
+  await page.getByRole('button', { name: 'Create Blog' }).click()
+}
+
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     // Reset database.
@@ -87,12 +96,7 @@ describe('Blog app', () => {
 
     describe('And there is a blog', () => {
       beforeEach(async ({ page }) => {
-        await page.getByRole('button', { name: 'Create New Blog' }).click()
-        const textboxes = await page.getByRole('textbox').all()
-        await textboxes[0].fill('NEWTITLE')
-        await textboxes[1].fill('NEWAUTHOR')
-        await textboxes[2].fill('NEWURL')
-        await page.getByRole('button', { name: 'Create Blog' }).click()
+        await addBlogHelper(page, 'NEW BLOG TITLE', 'NEW BLOG AUTHOR', 'NEW BLOG URL')
         await page.getByRole('button', { name: 'View' }).waitFor()
         await page.getByRole('button', { name: 'View' }).click()
         // TODO: same story here
@@ -105,13 +109,32 @@ describe('Blog app', () => {
         await expect(page.getByText('likes 1')).toBeVisible()
       })
 
+      test('shown blogs are ordered', async ({ page }) => {
+        // First, like the active blog. This is important for later.
+        await page.getByRole('button', { name: 'Like' }).click()
+        // Then, un-expand the blog.
+        await page.getByRole('button', { name: 'Hide' }).click()
+        // Add a second new blog, so there are two things to order.
+        await addBlogHelper(page, 'Z BLOG TITLE', 'Z BLOG AUTHOR', 'Z BLOG URL')
+        await expect(page.getByText('Z BLOG TITLE')).toBeVisible()
+        // Now, check the order. The default order should be alphabetical.
+        const initialOrder = await page.getByText('BLOG TITLE').all()
+        expect(initialOrder[0]).toContainText('NEW BLOG TITLE')
+        expect(initialOrder[1]).toContainText('Z BLOG TITLE')
+        // Check the radio button for "likes", to see it change to that order.
+        await page.getByLabel('likes').click()
+        const likesOrder = await page.getByText('BLOG TITLE').all()
+        expect(likesOrder[0]).toContainText('NEW BLOG TITLE')
+        expect(likesOrder[1]).toContainText('Z BLOG TITLE')
+      })
+
       test('it can be deleted', async ({ page }) => {
         page.on('dialog', dialog => dialog.accept())
         await page.getByRole('button', { name: 'Delete' }).click()
         // TODO: this "wait for detached" seems very flakey...
         // it's suppoedly "bad practice" but I think a static wait time would be better in this case
-        await page.getByText('NEWTITLE').waitFor({ state: 'detached' })
-        await expect(page.getByText('NEWTITLE')).not.toBeVisible()
+        await page.getByText('NEW BLOG TITLE').waitFor({ state: 'detached' })
+        await expect(page.getByText('NEW BLOG TITLE')).not.toBeVisible()
       })
 
       test('it cannot be deleted if you are not the owner', async ({ page, request }) => {
