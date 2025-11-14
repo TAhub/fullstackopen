@@ -14,6 +14,8 @@ const App = () => {
     dispatch({type: 'ADDNEW', payload: {content}})
   }
 
+  anecdotes.sort((a, b) => a.votes - b.votes)
+
   return (
     <div>
       <h2>Anecdotes</h2>
