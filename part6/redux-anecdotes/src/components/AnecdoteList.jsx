@@ -11,17 +11,19 @@ const AnecdoteList = () => {
 
   anecdotes.sort((a, b) => a.votes - b.votes)
 
-  return <>
-    {anecdotes.map(anecdote => (
-      <div key={anecdote.id}>
-        <div>{anecdote.content}</div>
-        <div>
-          has {anecdote.votes}
-          <button onClick={() => handleVoteButton(anecdote.id)}>vote</button>
+  return (
+    <>
+      {anecdotes.map(anecdote => (
+        <div key={anecdote.id}>
+          <div>{anecdote.content}</div>
+          <div>
+            has {anecdote.votes}
+            <button onClick={() => handleVoteButton(anecdote.id)}>vote</button>
+          </div>
         </div>
-      </div>
-    ))}
-  </>
+      ))}
+    </>
+  )
 }
 
 export default AnecdoteList
