@@ -16,6 +16,9 @@ const App = () => {
     onSuccess: (updatedAnecdote) => {
       showNotificationAction('Voted on anecdote: ' + updatedAnecdote.content)
       queryClient.setQueryData(['anecdotes'], anecdotes.map(a => a.id === updatedAnecdote.id ? updatedAnecdote : a))
+    },
+    onError: (error) => {
+      showNotificationAction('Failed to vote on anecdote: ' + error.message)
     }
   })
   const queryClient = useQueryClient()

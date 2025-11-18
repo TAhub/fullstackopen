@@ -10,6 +10,9 @@ const AnecdoteForm = () => {
     onSuccess: (newAnecdote) => {
       showNotificationAction('Made new anecdote: ' + newAnecdote.content)
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+    },
+    onError: (error) => {
+      showNotificationAction('Failed to make anecdote: ' + error.message)
     }
   })
   const queryClient = useQueryClient()
