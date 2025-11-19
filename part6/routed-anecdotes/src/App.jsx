@@ -71,44 +71,34 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const content = useField('content')
-  const author = useField('author')
-  const info = useField('info')
+  const fields = [
+    useField('content', 'content'),
+    useField('author', 'author'),
+    useField('info', 'url for more info')
+  ]
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    props.addNew({
-      content: content.value,
-      author: author.value,
-      info: info.value,
-      votes: 0
-    })
+    const newAnecdote = { votes: 0 }
+    for (const field of fields) {
+      newAnecdote[field.type] = field.value
+    }
+    props.addNew(newAnecdote)
     navigate('/')
   }
   const handleClick = (e) => {
     e.preventDefault()
-    content.reset()
-    author.reset()
-    info.reset()
+    for (const field of fields) {
+      field.reset()
+    }
   }
 
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input {...content} />
-        </div>
-        <div>
-          author
-          <input {...author} />
-        </div>
-        <div>
-          url for more info
-          <input {...info} />
-        </div>
+        {fields.map(field => <div key={field.type}>{field.message} <input {...field} /></div>)}
         <button>create</button>
         <button onClick={handleClick}>reset</button>
       </form>
