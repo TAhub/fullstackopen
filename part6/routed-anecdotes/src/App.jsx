@@ -98,7 +98,7 @@ const CreateNew = (props) => {
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
-        {fields.map(field => <div key={field.type}>{field.message} <input {...field} /></div>)}
+        {fields.map(field => <div key={field.type}>{field.message} <input {...field.inputValues} /></div>)}
         <button>create</button>
         <button onClick={handleClick}>reset</button>
       </form>
