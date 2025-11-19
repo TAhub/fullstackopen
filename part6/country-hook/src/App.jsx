@@ -18,7 +18,30 @@ const useField = (type) => {
 const useCountry = (name) => {
   const [country, setCountry] = useState(null)
 
-  useEffect(() => {})
+  const baseUrl = 'https://studies.cs.helsinki.fi/restcountries/api/name/'
+  useEffect(() => {
+    if (name.length === 0) {
+      setCountry(null)
+      return
+    }
+    fetch(baseUrl + name).then((result) => {
+      if (!result.ok) {
+        setCountry({ found: false })
+      } else {
+        result.json().then((json) => {
+          setCountry({
+            found: true,
+            data: {
+              name: json.name.official,
+              capital: json.capital[0],
+              population: json.population,
+              flag: json.flags.png
+            }
+          })
+        })
+      }
+    })
+  }, [name])
 
   return country
 }
