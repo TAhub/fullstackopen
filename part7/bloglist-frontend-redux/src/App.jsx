@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import Blog from './components/Blog'
 import NewBlog from './components/NewBlog'
 import Login from './components/Login'
@@ -8,66 +9,64 @@ import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
+import { showNotification } from './reducers/notificationReducer'
+
 const App = () => {
+  const dispatch = useDispatch()
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [notification, setNotification] = useState(null)
   const [newBlogVisible, setNewBlogVisible] = useState(false)
   const [sortMode, setSortMode] = useState('title')
 
-  const showNotification = (notification) => {
-    setNotification(notification)
-    setTimeout(() => setNotification(null), 4000)
-  }
   const createNewBlog = async (newBlogTitle, newBlogAuthor, newBlogUrl) => {
     // Hide the add form.
     setNewBlogVisible(false)
     // Then try to create a blog.
     try {
       const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
-      showNotification({ text: 'Successfully posted a blog!' })
+      dispatch(showNotification('Successfully posted a blog!'))
       setBlogs(blogs.concat(newBlog))
     } catch (error) {
-      showNotification({ text: 'Failed to post blog!', error })
+      dispatch(showNotification('Failed to post blog!', error))
     }
   }
   const likeBlog = async (blog) => {
     try {
       const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token)
-      showNotification({ text: 'Successfully liked the blog!' })
+      dispatch(showNotification('Successfully liked the blog!'))
       setBlogs(blogs.map(b => b.id !== newBlog.id ? b : newBlog))
     } catch (error) {
-      showNotification({ text: 'Failed to like blog!', error })
+      dispatch(showNotification('Failed to like blog!', error))
     }
   }
   const deleteBlog = async (blog) => {
     try {
       await blogService.remove(blog.id, user.token)
-      showNotification({ text: 'Successfully deleted the blog!' })
+      dispatch(showNotification('Successfully deleted the blog!'))
       setBlogs(blogs.filter(b => b.id !== blog.id))
     } catch (error) {
-      showNotification({ text: 'Failed to delete blog!', error })
+      dispatch(showNotification('Failed to delete blog!', error))
     }
   }
   const handleLoginButton = async (event) => {
     event.preventDefault()
     try {
       const newUser = await loginService.login(loginUsername, loginPassword)
-      showNotification({ text: 'Successfully logged in!' })
+      dispatch(showNotification('Successfully logged in!'))
       setUser(newUser)
       // Also, forget the login username and password.
       setLoginUsername('')
       setLoginPassword('')
     } catch(error) {
-      showNotification({ text: 'Failed to log in!', error })
+      dispatch(showNotification('Failed to log in!', error))
     }
   }
   const handleLogoutButton = (event) => {
     event.preventDefault()
     setUser(null)
-    showNotification({ text: 'Successfully logged out!' })
+    dispatch(showNotification('Successfully logged out!'))
   }
   const handleLoginUsernameChanged = (event) => {
     setLoginUsername(event.target.value)
@@ -85,7 +84,7 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <Notification notification={notification} />
+        <Notification />
         <h2>Log in to application</h2>
         <Login onLoginButton={handleLoginButton}
           loginUsername={loginUsername} onLoginUsernameChanged={handleLoginUsernameChanged}
@@ -114,7 +113,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification notification={notification} />
+      <Notification />
       <h2>User Management</h2>
       <Logout user={user} onLogoutButton={handleLogoutButton} />
       <h2>Sort</h2>
