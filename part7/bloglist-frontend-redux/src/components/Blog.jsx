@@ -1,7 +1,11 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 
-const Blog = ({ blog, likeBlog, deleteBlog, userName }) => {
+import { likeBlog, deleteBlog } from '../reducers/blogReducer'
+
+const Blog = ({ blog, user }) => {
   const [expanded, setExpanded] = useState(false)
+  const dispatch = useDispatch()
 
   const blogStyle = {
     paddingTop: 10,
@@ -16,13 +20,13 @@ const Blog = ({ blog, likeBlog, deleteBlog, userName }) => {
 
   const handleLikeButton = (event) => {
     event.preventDefault()
-    likeBlog(blog)
+    dispatch(likeBlog(blog, user.token))
   }
   const handleDeleteButton = (event) => {
     event.preventDefault()
     if (window.confirm('Really delete that blog?')) {
       setExpanded(false)
-      deleteBlog(blog)
+      dispatch(deleteBlog(blog, user.token))
     }
   }
 
@@ -42,7 +46,7 @@ const Blog = ({ blog, likeBlog, deleteBlog, userName }) => {
       <div>
         {blog.user.name}
       </div>
-      {userName === blog.user.userName ? (<button onClick={handleDeleteButton}>Delete</button>) : null}
+      {user.userName === blog.user.userName ? (<button onClick={handleDeleteButton}>Delete</button>) : null}
     </div>
   </div>)
 }

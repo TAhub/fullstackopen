@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import Blog from './components/Blog'
+
+import BlogList from './components/BlogList'
 import NewBlog from './components/NewBlog'
 import Login from './components/Login'
 import Logout from './components/Logout'
 import SortMode from './components/SortMode'
 import Notification from './components/Notification'
-import blogService from './services/blogs'
 import loginService from './services/login'
-
+import { initializeBlogs, addNewBlog } from './reducers/blogReducer'
 import { showNotification } from './reducers/notificationReducer'
 
 const App = () => {
@@ -16,7 +16,6 @@ const App = () => {
   const [loginUsername, setLoginUsername] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [blogs, setBlogs] = useState([])
   const [newBlogVisible, setNewBlogVisible] = useState(false)
   const [sortMode, setSortMode] = useState('title')
 
@@ -24,31 +23,7 @@ const App = () => {
     // Hide the add form.
     setNewBlogVisible(false)
     // Then try to create a blog.
-    try {
-      const newBlog = await blogService.post(newBlogTitle, newBlogAuthor, newBlogUrl, user.token)
-      dispatch(showNotification('Successfully posted a blog!'))
-      setBlogs(blogs.concat(newBlog))
-    } catch (error) {
-      dispatch(showNotification('Failed to post blog!', error))
-    }
-  }
-  const likeBlog = async (blog) => {
-    try {
-      const newBlog = await blogService.put(blog.title, blog.author, blog.url, blog.likes + 1, blog.id, user.token)
-      dispatch(showNotification('Successfully liked the blog!'))
-      setBlogs(blogs.map(b => b.id !== newBlog.id ? b : newBlog))
-    } catch (error) {
-      dispatch(showNotification('Failed to like blog!', error))
-    }
-  }
-  const deleteBlog = async (blog) => {
-    try {
-      await blogService.remove(blog.id, user.token)
-      dispatch(showNotification('Successfully deleted the blog!'))
-      setBlogs(blogs.filter(b => b.id !== blog.id))
-    } catch (error) {
-      dispatch(showNotification('Failed to delete blog!', error))
-    }
+    dispatch(addNewBlog(newBlogTitle, newBlogAuthor, newBlogUrl, user.token))
   }
   const handleLoginButton = async (event) => {
     event.preventDefault()
@@ -76,9 +51,7 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    dispatch(initializeBlogs())
   }, [])
 
   if (user === null) {
@@ -95,19 +68,6 @@ const App = () => {
 
   const sortModes = ['title', 'author', 'likes']
 
-  blogs.sort((a, b) => {
-    switch (sortMode) {
-    case 'title':
-      return a.title.localeCompare(b.title)
-    case 'author':
-      return a.author.localeCompare(b.author)
-    case 'likes':
-      return a.likes - b.likes
-    default:
-      return a.id.localeCompare(b.id)
-    }
-  })
-
   const hideWhenNewBlogVisible = { display: newBlogVisible ? 'none' : '' }
   const showWhenNewBlogVisible = { display: newBlogVisible ? '' : 'none' }
 
@@ -119,9 +79,7 @@ const App = () => {
       <h2>Sort</h2>
       <SortMode sortMode={sortMode} setSortMode={setSortMode} sortModes={sortModes} />
       <h2>Blogs</h2>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} userName={user.userName} />
-      )}
+      <BlogList user={user} sortMode={sortMode} />
       <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
       <div style={showWhenNewBlogVisible}>
         <h2>New Blog</h2>
