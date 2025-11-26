@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   BrowserRouter as Router,
-  Routes, Route, Link
+  Routes, Route, Link, useParams,
 } from 'react-router-dom'
 
 import Login from './components/Login'
@@ -10,6 +10,7 @@ import Logout from './components/Logout'
 import Notification from './components/Notification'
 import { initializeBlogs } from './reducers/blogReducer'
 import BlogsView from './components/BlogsView'
+import BlogView from './components/BlogView'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -44,6 +45,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<BlogsView />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </Router>
   )
