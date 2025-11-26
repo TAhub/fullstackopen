@@ -1,27 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link
+} from 'react-router-dom'
 
-import BlogList from './components/BlogList'
-import NewBlog from './components/NewBlog'
 import Login from './components/Login'
 import Logout from './components/Logout'
-import SortMode from './components/SortMode'
 import Notification from './components/Notification'
-import { initializeBlogs, addNewBlog } from './reducers/blogReducer'
-import { showNotification } from './reducers/notificationReducer'
+import { initializeBlogs } from './reducers/blogReducer'
+import BlogsView from './components/BlogsView'
 
 const App = () => {
   const dispatch = useDispatch()
   const user = useSelector(store => store.user)
-  const [newBlogVisible, setNewBlogVisible] = useState(false)
-  const [sortMode, setSortMode] = useState('title')
-
-  const createNewBlog = async (newBlogTitle, newBlogAuthor, newBlogUrl) => {
-    // Hide the add form.
-    setNewBlogVisible(false)
-    // Then try to create a blog.
-    dispatch(addNewBlog(newBlogTitle, newBlogAuthor, newBlogUrl, user.token))
-  }
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -37,27 +29,23 @@ const App = () => {
     )
   }
 
-  const sortModes = ['title', 'author', 'likes']
-
-  const hideWhenNewBlogVisible = { display: newBlogVisible ? 'none' : '' }
-  const showWhenNewBlogVisible = { display: newBlogVisible ? '' : 'none' }
+  const padding = {
+    padding: 5
+  }
 
   return (
-    <div>
+    <Router>
+      <div>
+        <Link style={padding} to="/">blogs</Link>
+      </div>
       <Notification />
       <h2>User Management</h2>
       <Logout />
-      <h2>Sort</h2>
-      <SortMode sortMode={sortMode} setSortMode={setSortMode} sortModes={sortModes} />
-      <h2>Blogs</h2>
-      <BlogList sortMode={sortMode} />
-      <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
-      <div style={showWhenNewBlogVisible}>
-        <h2>New Blog</h2>
-        <NewBlog createNewBlog={createNewBlog} />
-        <button onClick={() => setNewBlogVisible(false)}>Cancel</button>
-      </div>
-    </div>
+
+      <Routes>
+        <Route path="/" element={<BlogsView />} />
+      </Routes>
+    </Router>
   )
 }
 
