@@ -14,13 +14,13 @@ import BlogView from './components/BlogView'
 
 const App = () => {
   const dispatch = useDispatch()
-  const user = useSelector(store => store.user)
+  const login = useSelector(store => store.login)
 
   useEffect(() => {
     dispatch(initializeBlogs())
   }, [])
 
-  if (user === null) {
+  if (login === null) {
     return (
       <div>
         <Notification />

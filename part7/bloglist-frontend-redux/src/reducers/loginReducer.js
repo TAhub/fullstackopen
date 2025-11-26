@@ -3,14 +3,14 @@ import { createSlice } from '@reduxjs/toolkit'
 import { showNotification } from './notificationReducer'
 import loginService from '../services/login'
 
-const userSlice = createSlice({
-  name: 'user',
+const loginSlice = createSlice({
+  name: 'login',
   initialState: null,
   reducers: {
-    setUser(state, action) {
+    setLogin(state, action) {
       return action.payload
     },
-    clearUser(state, action) {
+    clearLogin(state, action) {
       return null
     }
   },
@@ -21,7 +21,7 @@ export const login = (username, password) => {
     try {
       const newUser = await loginService.login(username, password)
       dispatch(showNotification('Successfully logged in!'))
-      dispatch(setUser(newUser))
+      dispatch(setLogin(newUser))
     } catch(error) {
       dispatch(showNotification('Failed to log in!', error))
     }
@@ -31,9 +31,9 @@ export const login = (username, password) => {
 export const logout = () => {
   return (dispatch) => {
     dispatch(showNotification('Successfully logged out!'))
-    dispatch(clearUser())
+    dispatch(clearLogin())
   }
 }
 
-export const { setUser, clearUser } = userSlice.actions
-export default userSlice.reducer
+export const { setLogin, clearLogin } = loginSlice.actions
+export default loginSlice.reducer

@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux'
 
-import { logout } from '../reducers/userReducer'
+import { logout } from '../reducers/loginReducer'
 
 const onLogoutButton = () => {
   const dispatch = useDispatch()
-  const user = useSelector(store => store.user)
+  const login = useSelector(store => store.login)
 
   const handleLogoutButton = (event) => {
     event.preventDefault()
@@ -12,7 +12,7 @@ const onLogoutButton = () => {
   }
 
   return (<div>
-    <div>{user.name} is logged in.</div>
+    <div>{login.name} is logged in.</div>
     <button onClick={handleLogoutButton}>Log Out</button>
   </div>)
 }

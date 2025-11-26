@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import NewBlog from './NewBlog'
 import BlogList from './BlogList'
@@ -10,6 +10,7 @@ const BlogsView = () => {
   const dispatch = useDispatch()
   const [sortMode, setSortMode] = useState('title')
   const [newBlogVisible, setNewBlogVisible] = useState(false)
+  const login = useSelector(store => store.login)
 
   const hideWhenNewBlogVisible = { display: newBlogVisible ? 'none' : '' }
   const showWhenNewBlogVisible = { display: newBlogVisible ? '' : 'none' }
@@ -18,7 +19,7 @@ const BlogsView = () => {
     // Hide the add form.
     setNewBlogVisible(false)
     // Then try to create a blog.
-    dispatch(addNewBlog(newBlogTitle, newBlogAuthor, newBlogUrl, user.token))
+    dispatch(addNewBlog(newBlogTitle, newBlogAuthor, newBlogUrl, login.token))
   }
 
   const sortModes = ['title', 'author', 'likes']
@@ -27,7 +28,7 @@ const BlogsView = () => {
     <h2>Sort</h2>
     <SortMode sortMode={sortMode} setSortMode={setSortMode} sortModes={sortModes} />
     <h2>Blogs</h2>
-    <BlogList />
+    <BlogList sortMode={sortMode} />
     <button style={hideWhenNewBlogVisible} onClick={() => setNewBlogVisible(true)}>Create New Blog</button>
     <div style={showWhenNewBlogVisible}>
       <h2>New Blog</h2>
