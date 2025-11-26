@@ -9,7 +9,9 @@ import Login from './components/Login'
 import Logout from './components/Logout'
 import Notification from './components/Notification'
 import { initializeBlogs } from './reducers/blogReducer'
+import { initializeUsers } from './reducers/userReducer'
 import BlogsView from './components/BlogsView'
+import UsersView from './components/UsersView'
 import BlogView from './components/BlogView'
 
 const App = () => {
@@ -18,6 +20,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(initializeBlogs())
+    dispatch(initializeUsers())
   }, [])
 
   if (login === null) {
@@ -38,6 +41,7 @@ const App = () => {
     <Router>
       <div>
         <Link style={padding} to="/">blogs</Link>
+        <Link style={padding} to="/users">users</Link>
       </div>
       <Notification />
       <h2>User Management</h2>
@@ -46,6 +50,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<BlogsView />} />
         <Route path="/blogs/:id" element={<BlogView />} />
+        <Route path="/users" element={<UsersView />} />
       </Routes>
     </Router>
   )
