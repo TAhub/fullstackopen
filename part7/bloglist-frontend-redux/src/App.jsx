@@ -13,6 +13,7 @@ import { initializeUsers } from './reducers/userReducer'
 import BlogsView from './components/BlogsView'
 import UsersView from './components/UsersView'
 import BlogView from './components/BlogView'
+import UserView from './components/UserView'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -51,6 +52,7 @@ const App = () => {
         <Route path="/" element={<BlogsView />} />
         <Route path="/blogs/:id" element={<BlogView />} />
         <Route path="/users" element={<UsersView />} />
+        <Route path="/users/:id" element={<UserView />} />
       </Routes>
     </Router>
   )

@@ -10,6 +10,9 @@ const BlogView = () => {
   const login = useSelector(store => store.login)
   const blogs = useSelector(store => store.blogs)
   const blog = blogs.find(n => n.id === id)
+  if (!blog) {
+    return null
+  }
 
   const handleLikeButton = (event) => {
     event.preventDefault()
