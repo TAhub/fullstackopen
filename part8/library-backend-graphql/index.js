@@ -104,6 +104,15 @@ const typeDefs = `
     bookCount: Int!
   }
 
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String]!
+    ): Book
+  }
+
   type Query {
     bookCount: Int!
     authorCount: Int!
@@ -131,6 +140,13 @@ const resolvers = {
       })
     },
     allAuthors: () => authors
+  },
+  Mutation: {
+    addBook: (obj, args) => {
+      const book = { ...args }
+      books = books.concat(book)
+      return book
+    }
   },
   Author: {
     bookCount: (obj) => {
