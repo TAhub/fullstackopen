@@ -145,6 +145,10 @@ const resolvers = {
     addBook: (obj, args) => {
       const book = { ...args }
       books = books.concat(book)
+      const authorFound = authors.find(author => author.name === args.author)
+      if (!authorFound) {
+        authors = authors.concat({ name: args.author })
+      }
       return book
     }
   },
