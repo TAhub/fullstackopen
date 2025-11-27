@@ -1,9 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useState } from 'react'
 
-import { likeBlog, deleteBlog } from '../reducers/blogReducer'
+import { likeBlog, deleteBlog, commentBlog } from '../reducers/blogReducer'
 
 const BlogView = () => {
+  const [newComment, setNewComment] = useState('')
   const id = useParams().id
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -13,7 +15,21 @@ const BlogView = () => {
   if (!blog) {
     return null
   }
+  const comments = blog.comments ?? []
 
+  const handleNewCommentChanged = (event) => {
+    setNewComment(event.target.value)
+  }
+  const handleCommentButton = (event) => {
+    event.preventDefault()
+    if (newComment.length === 0) {
+      return // Don't post anything
+    }
+    // Start the process of posting the comment. This doesn't have to wait for it to finish.
+    dispatch(commentBlog(blog, newComment))
+    // Clear the old values.
+    setNewComment('')
+  }
   const handleLikeButton = (event) => {
     event.preventDefault()
     dispatch(likeBlog(blog, login.token))
@@ -39,7 +55,15 @@ const BlogView = () => {
       <div>
         added by {blog.user.name}
       </div>
-      {login.userName === blog.user.userName ? (<button onClick={handleDeleteButton}>Delete</button>) : null}
+      <h4>Comments</h4>
+      <ul>
+        {comments.map((comment, i) => <li key={i}>{comment}</li>)}
+      </ul>
+      <form>
+        <input type="text" value={newComment} onChange={handleNewCommentChanged} />
+        <button onClick={handleCommentButton}>Post Comment</button>
+      </form>
+      {login.userName === blog.user.userName ? (<><h4>Manage</h4><button onClick={handleDeleteButton}>Delete</button></>) : null}
     </div>
   </div>)
 }

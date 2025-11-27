@@ -19,6 +19,22 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+  if (request.body.text === undefined) {
+    return response.status(400).send({ error: 'malformatted comment' })
+  }
+  const blog = await Blog.findById(request.params.id)
+  if (!blog) {
+    return response.status(404).end()
+  }
+  if (!blog.comments) {
+    blog.comments = []
+  }
+  blog.comments = blog.comments.concat(request.body.text)
+  const updatedBlog = await blog.save()
+  response.json(updatedBlog)
+})
+
 blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   if (request.body.author === undefined || request.body.title === undefined) {
     return response.status(400).send({ error: 'malformatted blog' })

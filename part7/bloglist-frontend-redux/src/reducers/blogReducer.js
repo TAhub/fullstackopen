@@ -59,5 +59,18 @@ export const deleteBlog = (blog, token) => {
   }
 }
 
+export const commentBlog = (blog, text) => {
+  return async (dispatch, getState) => {
+    try {
+      const newBlog = await blogService.comment(blog.id, text)
+      dispatch(showNotification('Successfully commented on blog!'))
+      const blogs = getState().blogs
+      dispatch(setBlogs(blogs.map(b => b.id !== newBlog.id ? b : newBlog)))
+    } catch (error) {
+      dispatch(showNotification('Failed to comment on blog!', error))
+    }
+  }
+}
+
 export const { setBlogs } = blogSlice.actions
 export default blogSlice.reducer
