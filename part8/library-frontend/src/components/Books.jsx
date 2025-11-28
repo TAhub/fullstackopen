@@ -1,9 +1,25 @@
+import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client/react'
+
+const ALL_BOOKS = gql`
+  query {
+    allBooks {
+      title
+      author
+      published
+    }
+  }
+`
+
 const Books = ({ show }) => {
   if (!show) {
     return null
   }
-
-  const books = []
+  const booksResult = useQuery(ALL_BOOKS)
+  if (booksResult.loading) {
+    return null
+  }
+  const books = booksResult.data.allBooks
 
   return (
     <div>
