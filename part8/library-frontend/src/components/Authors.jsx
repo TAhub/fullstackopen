@@ -42,7 +42,7 @@ const Authors = ({ show }) => {
           ))}
         </tbody>
       </table>
-      <AuthorUpdate />
+      <AuthorUpdate authors={authors} />
     </div>
   )
 }
