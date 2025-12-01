@@ -128,6 +128,11 @@ const resolvers = {
     bookCount: async (obj) => {
       return (await Book.find({ author: obj })).length
     }
+  },
+  Book: {
+    author: async (obj) => {
+      return await Author.findById(obj.author)
+    }
   }
 }
 
