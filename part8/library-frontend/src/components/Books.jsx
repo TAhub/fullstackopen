@@ -5,7 +5,9 @@ export const ALL_BOOKS = gql`
   query {
     allBooks {
       title
-      author
+      author {
+        name
+      }
       published
     }
   }
@@ -35,7 +37,7 @@ const Books = ({ show }) => {
           {books.map((a) => (
             <tr key={a.id}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           ))}
