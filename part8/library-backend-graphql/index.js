@@ -1,99 +1,23 @@
+const { GraphQLError } = require('graphql')
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
 
-let authors = [
-  {
-    name: 'Robert Martin',
-    id: "afa51ab0-344d-11e9-a414-719c6709cf3e",
-    born: 1952,
-  },
-  {
-    name: 'Martin Fowler',
-    id: "afa5b6f0-344d-11e9-a414-719c6709cf3e",
-    born: 1963
-  },
-  {
-    name: 'Fyodor Dostoevsky',
-    id: "afa5b6f1-344d-11e9-a414-719c6709cf3e",
-    born: 1821
-  },
-  { 
-    name: 'Joshua Kerievsky',
-    // birthyear not known
-    id: "afa5b6f2-344d-11e9-a414-719c6709cf3e",
-  },
-  { 
-    name: 'Sandi Metz',
-    // birthyear not known
-    id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
-  },
-]
-
-/*
- * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
- * However, for simplicity, we will store the author's name in connection with the book
-*/
-
-let books = [
-  {
-    title: 'Clean Code',
-    published: 2008,
-    author: 'Robert Martin',
-    id: "afa5b6f4-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring']
-  },
-  {
-    title: 'Agile software development',
-    published: 2002,
-    author: 'Robert Martin',
-    id: "afa5b6f5-344d-11e9-a414-719c6709cf3e",
-    genres: ['agile', 'patterns', 'design']
-  },
-  {
-    title: 'Refactoring, edition 2',
-    published: 2018,
-    author: 'Martin Fowler',
-    id: "afa5de00-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring']
-  },
-  {
-    title: 'Refactoring to patterns',
-    published: 2008,
-    author: 'Joshua Kerievsky',
-    id: "afa5de01-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring', 'patterns']
-  },
-  {
-    title: 'Practical Object-Oriented Design, An Agile Primer Using Ruby',
-    published: 2012,
-    author: 'Sandi Metz',
-    id: "afa5de02-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring', 'design']
-  },
-  {
-    title: 'Crime and punishment',
-    published: 1866,
-    author: 'Fyodor Dostoevsky',
-    id: "afa5de03-344d-11e9-a414-719c6709cf3e",
-    genres: ['classic', 'crime']
-  },
-  {
-    title: 'Demons',
-    published: 1872,
-    author: 'Fyodor Dostoevsky',
-    id: "afa5de04-344d-11e9-a414-719c6709cf3e",
-    genres: ['classic', 'revolution']
-  },
-]
-
-/*
-  you can remove the placeholder query once your first one has been implemented 
-*/
+// Connect to database with Mongoose.
+const mongoose = require('mongoose')
+mongoose.set('strictQuery', false)
+const Book = require('./models/book')
+const Author = require('./models/author')
+require('dotenv').config()
+mongoose.connect(process.env.MONGODB_URI).then(() => {
+  console.log('connected to MongoDB')
+}).catch((error) => {
+  console.log('error connection to MongoDB:', error.message)
+})
 
 const typeDefs = `
   type Book {
     title: String!
-    author: String!
+    author: Author!
     published: Int!
     genres: [String]!
   }
@@ -127,13 +51,14 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (obj, args) => {
+    bookCount: async () => (await Book.find({})).length,
+    authorCount: async () => (await Author.find({})).length,
+    allBooks: async (obj, args) => {
       if (Object.keys(args).length == 0) {
-        return books
+        return await Book.find({})
       }
-      return books.filter(book => {
+      // TODO: improve this filter... can it be done on mongoose's end?
+      return (await Book.find({})).filter(book => {
         if (args.author && book.author !== args.author) {
           return false
         }
@@ -143,19 +68,44 @@ const resolvers = {
         return true
       })
     },
-    allAuthors: () => authors
+    allAuthors: async () => (await Author.find({}))
   },
   Mutation: {
-    addBook: (obj, args) => {
-      const book = { ...args }
-      books = books.concat(book)
-      const authorFound = authors.find(author => author.name === args.author)
-      if (!authorFound) {
-        authors = authors.concat({ name: args.author })
+    addBook: async (obj, args) => {
+      let author = null
+      try {
+        author = await Author.findOne({ name: args.author })
+      } catch (error) {} // Ignore, and just go ahead and make a new author
+      if (!author) {
+        author = new Author({ name: args.author })
+        try {
+          await author.save()
+        } catch (error) {
+          throw new GraphQLError('Saving author failed', {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.name,
+              error
+            }
+          })
+        }
+      }
+      const book = new Book({ ...args, author })
+      try {
+        await book.save()
+      } catch (error) {
+        throw new GraphQLError('Saving book failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error
+          }
+        })
       }
       return book
     },
     editAuthor: (obj, args) => {
+      // TODO: update
       const authorFound = authors.find(author => author.name === args.name)
       if (!authorFound) {
         return null
@@ -166,6 +116,7 @@ const resolvers = {
   },
   Author: {
     bookCount: (obj) => {
+      // TODO: update
       let count = 0
       for (const book of books) {
         if (book.author === obj.name) {
@@ -177,13 +128,13 @@ const resolvers = {
   }
 }
 
+// Start Apollo server.
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 })
-
 startStandaloneServer(server, {
-  listen: { port: 4000 },
+  listen: { port: process.env.PORT },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`)
 })
