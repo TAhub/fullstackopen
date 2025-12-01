@@ -54,21 +54,21 @@ const resolvers = {
     bookCount: async () => (await Book.find({})).length,
     authorCount: async () => (await Author.find({})).length,
     allBooks: async (obj, args) => {
-      if (Object.keys(args).length == 0) {
-        return await Book.find({})
+      const criteria = {}
+      if (args.author) {
+        try {
+          const author = await Author.findOne({ name: args.author })
+          criteria['author'] = author
+        } catch (error) {
+          return null
+        }
       }
-      // TODO: improve this filter... can it be done on mongoose's end?
-      return (await Book.find({})).filter(book => {
-        if (args.author && book.author !== args.author) {
-          return false
-        }
-        if (args.genre && !book.genres.includes(args.genre)) {
-          return false
-        }
-        return true
-      })
+      if (args.genre) {
+        criteria['genres'] = { $all: [args.genre] }
+      }
+      return await Book.find(criteria)
     },
-    allAuthors: async () => (await Author.find({}))
+    allAuthors: async () => (await Author.find({})).pop
   },
   Mutation: {
     addBook: async (obj, args) => {
@@ -84,7 +84,7 @@ const resolvers = {
           throw new GraphQLError('Saving author failed', {
             extensions: {
               code: 'BAD_USER_INPUT',
-              invalidArgs: args.name,
+              invalidArgs: args.author,
               error
             }
           })
@@ -97,33 +97,36 @@ const resolvers = {
         throw new GraphQLError('Saving book failed', {
           extensions: {
             code: 'BAD_USER_INPUT',
-            invalidArgs: args.name,
+            invalidArgs: args.author,
             error
           }
         })
       }
       return book
     },
-    editAuthor: (obj, args) => {
-      // TODO: update
-      const authorFound = authors.find(author => author.name === args.name)
-      if (!authorFound) {
+    editAuthor: async (obj, args) => {
+      const authorObj = await Author.findOne({ name: args.name })
+      if (!authorObj) {
         return null
       }
-      authorFound.born = args.setBornTo
-      return authorFound
+      authorObj.born = args.setBornTo
+      try {
+        await authorObj.save()
+      } catch (error) {
+        throw new GraphQLError('Updating author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.name,
+            error
+          }
+        })
+      }
+      return authorObj
     }
   },
   Author: {
-    bookCount: (obj) => {
-      // TODO: update
-      let count = 0
-      for (const book of books) {
-        if (book.author === obj.name) {
-          count += 1
-        }
-      }
-      return count
+    bookCount: async (obj) => {
+      return (await Book.find({ author: obj })).length
     }
   }
 }
