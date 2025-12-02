@@ -13,11 +13,11 @@ export const ALL_AUTHORS = gql`
   }
 `
 
-const Authors = ({ show }) => {
+const Authors = ({ show, showIfToken }) => {
+  const authorsResult = useQuery(ALL_AUTHORS)
   if (!show) {
     return null
   }
-  const authorsResult = useQuery(ALL_AUTHORS)
   if (authorsResult.loading) {
     return null
   }
@@ -42,7 +42,9 @@ const Authors = ({ show }) => {
           ))}
         </tbody>
       </table>
-      <AuthorUpdate authors={authors} />
+      <div style={showIfToken}>
+        <AuthorUpdate authors={authors} />
+      </div>
     </div>
   )
 }

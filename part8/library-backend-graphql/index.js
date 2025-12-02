@@ -135,7 +135,7 @@ const resolvers = {
       }
       return book
     },
-    editAuthor: async (obj, args) => {
+    editAuthor: async (obj, args, context) => {
       if (!context.currentUser) {
         throw new GraphQLError('Need authentication', {
           extensions: {

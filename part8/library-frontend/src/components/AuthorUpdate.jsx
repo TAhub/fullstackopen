@@ -32,7 +32,7 @@ const AuthorUpdate = ({ authors }) => {
 
     updateAuthor({ variables: { name, born: Number(born) } })
 
-    setName('')
+    setName(authors[0].name)
     setBorn('')
   }
 

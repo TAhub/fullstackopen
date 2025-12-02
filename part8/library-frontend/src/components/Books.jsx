@@ -14,10 +14,10 @@ export const ALL_BOOKS = gql`
 `
 
 const Books = ({ show }) => {
+  const booksResult = useQuery(ALL_BOOKS)
   if (!show) {
     return null
   }
-  const booksResult = useQuery(ALL_BOOKS)
   if (booksResult.loading) {
     return null
   }
