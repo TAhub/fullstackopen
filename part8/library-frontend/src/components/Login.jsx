@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
 
+import { FAVORITE_GENRE } from './Books'
+
 const LOGIN = gql`
   mutation login(
     $username: String!
@@ -18,6 +20,9 @@ const Login = ({ show, setToken }) => {
   const [password, setPassword] = useState('')
 
   const [login, result] = useMutation(LOGIN, {
+    refetchQueries: [
+      { query: FAVORITE_GENRE },
+    ],
     onError: (error) => console.log(error),
   })
 
