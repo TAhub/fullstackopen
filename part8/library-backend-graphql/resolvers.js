@@ -26,7 +26,9 @@ const resolvers = {
       }
       return await Book.find(criteria)
     },
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => {
+      return await Author.find({})
+    },
     me: (obj, args, context) => context.currentUser
   },
   Mutation: {
@@ -38,24 +40,28 @@ const resolvers = {
           }
         })
       }
+      // Get or make the author.
       let author = null
       try {
         author = await Author.findOne({ name: args.author })
       } catch (error) {} // Ignore, and just go ahead and make a new author
       if (!author) {
-        author = new Author({ name: args.author })
-        try {
-          await author.save()
-        } catch (error) {
-          throw new GraphQLError('Saving author failed', {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              invalidArgs: args.author,
-              error
-            }
-          })
-        }
+        author = new Author({ name: args.author, bookCount: 0 })
       }
+      // Update the author's book count.
+      author.bookCount += 1
+      try {
+        await author.save()
+      } catch (error) {
+        throw new GraphQLError('Saving author failed', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.author,
+            error
+          }
+        })
+      }
+      // Make the book.
       const book = new Book({ ...args, author })
       try {
         await book.save()
@@ -68,6 +74,7 @@ const resolvers = {
           }
         })
       }
+      // Notify subscribers and return.
       pubsub.publish('BOOK_ADDED', { bookAdded: book })
       return book
     },
@@ -128,11 +135,6 @@ const resolvers = {
   Subscription: {
     bookAdded: {
       subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED')
-    }
-  },
-  Author: {
-    bookCount: async (obj) => {
-      return (await Book.find({ author: obj })).length
     }
   },
   Book: {

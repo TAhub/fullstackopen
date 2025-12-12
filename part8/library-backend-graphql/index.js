@@ -22,6 +22,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => {
 }).catch((error) => {
   console.log('error connection to MongoDB:', error.message)
 })
+mongoose.set('debug', true)
 
 // Load the schema and resolvers.
 const typeDefs = require('./schema')
