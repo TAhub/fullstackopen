@@ -6,7 +6,7 @@ import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Login from './components/Login'
 
-import { BOOK_ADDED } from './queries'
+import { BOOK_ADDED, ALL_BOOKS } from './queries'
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -21,6 +21,10 @@ const App = () => {
       if (!data.loading) {
         const bookData = data.data.bookAdded
         window.alert('New book: ' + bookData.title)
+        // This can't easily use "client.cache.updateQuery", because the query might have a filter.
+        client.refetchQueries({
+          include: [ALL_BOOKS],
+        })
       }
     }
   })
