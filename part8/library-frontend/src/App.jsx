@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useApolloClient } from '@apollo/client/react'
+import { useApolloClient, useSubscription } from '@apollo/client/react'
 
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Login from './components/Login'
+
+import { BOOK_ADDED } from './queries'
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -13,6 +15,15 @@ const App = () => {
 
   const showIfToken = token ? {} : { 'display': 'none' }
   const showIfNotToken = token ? { 'display' : 'none' } : {}
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      if (!data.loading) {
+        const bookData = data.data.bookAdded
+        window.alert('New book: ' + bookData.title)
+      }
+    }
+  })
 
   // TODO: It's weird that the course suggests mixing localStorage and state like this,
   // but doesn't fully sync them...
