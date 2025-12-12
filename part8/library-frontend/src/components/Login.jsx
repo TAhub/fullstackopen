@@ -1,19 +1,7 @@
 import { useState, useEffect } from 'react'
-import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
 
-import { FAVORITE_GENRE } from './Books'
-
-const LOGIN = gql`
-  mutation login(
-    $username: String!
-    $password: String!
-  ) {
-    login(username: $username, password: $password) {
-      value
-    }
-  }
-`
+import { FAVORITE_GENRE, LOGIN } from '../queries'
 
 const Login = ({ show, setToken }) => {
   const [username, setUsername] = useState('')
