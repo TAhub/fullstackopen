@@ -19,5 +19,17 @@ if (process.env.NODE_ENV === 'test') {
   const testingRouter = require('./controllers/testing')
   app.use('/api/testing', testingRouter)
 }
+if (true) {
+  // TODO: Temporary print blogs to command-line:
+  const loadFn = async () => {
+    const { Sequelize, QueryTypes } = require('sequelize')
+    const sequelize = new Sequelize(config.POSTGRES_URL)
+    await sequelize.authenticate()
+    const blogs = await sequelize.query('SELECT * FROM blogs;', { types: QueryTypes.SELECT })
+    console.log(blogs)
+    await sequelize.close()
+  }
+  loadFn()
+}
 
 module.exports = app
