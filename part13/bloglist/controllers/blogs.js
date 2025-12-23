@@ -6,7 +6,7 @@ const checkIfUserIncorrect = (request, blog) => {
   if (!user) {
     return {error: 'invalid token', user: null}
   }
-  if (blog.user._id.toString() !== user.id.toString()) {
+  if (blog.user !== user.userName) {
     return {error: 'only you can delete your blogs', user}
   }
   return {error: null, user}
@@ -37,8 +37,6 @@ blogsRouter.post('/:id/comments', async (request, response) => {
 })
 
 blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
-  // TODO: implement
-  /*
   if (request.body.author === undefined || request.body.title === undefined) {
     return response.status(400).send({ error: 'malformatted blog' })
   }
@@ -46,18 +44,19 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   if (!user) {
     return response.status(401).send({ error: 'invalid token' })
   }
-  const blog = new Blog({
-    title: request.body.title,
-    author: request.body.author,
-    url: request.body.url,
-    likes: request.body.likes,
-    user,
-  })
-  const result = await blog.save()
-  user.blogs = user.blogs.concat(result._id)
-  await user.save()
-  response.status(201).json(result)
-  */
+  try {
+    const result = await request.models.blog.create({
+      title: request.body.title,
+      author: request.body.author,
+      url: request.body.url,
+      likes: request.body.likes,
+      user: user.userName,
+    })
+    response.status(201).json(result)
+  } catch (error) {
+    console.log('post blog error', error)
+    return response.status(400).json(error)
+  }
 })
 
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
@@ -81,9 +80,7 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
 })
 
 blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
-  // TODO: implement
-  /*
-  const blog = await request.models.Blog.findById(request.params.id)
+  const blog = await request.models.blog.findByPk(request.params.id)
   if (blog.user === undefined) {
     return response.status(401).send({ error: 'no-one can delete userless blogs. NO-ONE!' })
   }
@@ -91,14 +88,8 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
   if (error) {
     return response.status(401).send({ error })
   }
-  const idx = user.blogs.indexOf(blog._id)
-  if (idx >= 0) {
-    user.blogs = user.blogs.splice(idx)
-    await user.save()
-  }
-  await request.models.Blog.findByIdAndDelete(request.params.id)
+  await blog.destroy()
   response.status(204).end()
-  */
 })
 
 module.exports = blogsRouter

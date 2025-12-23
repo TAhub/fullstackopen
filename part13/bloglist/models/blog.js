@@ -1,6 +1,6 @@
-const { Sequelize, Model, DataTypes } = require('sequelize')
+const { Model, DataTypes, Deferrable } = require('sequelize')
 
-const makeModel = (sequelize) => {
+const makeModel = async (sequelize) => {
   class Blog extends Model {}
   Blog.init({
     id: {
@@ -22,9 +22,17 @@ const makeModel = (sequelize) => {
       allowNull: false
     },
     likes: {
-      type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     },
-    // TODO: add user (another foreign key?)
+    user: {
+      type: DataTypes.TEXT,
+      references: {
+        model: sequelize.models.user,
+        key: 'user_name',
+        deferrable: Deferrable.INITIALLY_DEFERRED,
+      },
+    },
     // TODO: add comments (how do I have arrays of strings? maybe as a blob?)
   }, {
     sequelize,
@@ -32,7 +40,7 @@ const makeModel = (sequelize) => {
     timestamps: false,
     modelName: 'blog'
   })
-  Blog.sync()
+  await Blog.sync()
 }
 
 module.exports = makeModel

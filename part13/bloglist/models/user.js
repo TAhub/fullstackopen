@@ -1,6 +1,6 @@
-const { Sequelize, Model, DataTypes } = require('sequelize')
+const { Model, DataTypes } = require('sequelize')
 
-const makeModel = (sequelize) => {
+const makeModel = async (sequelize) => {
   class User extends Model {
     toJSON() {
       const json = super.toJSON()
@@ -21,14 +21,13 @@ const makeModel = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    // TODO: blogs list? maybe not needed, with joins...
   }, {
     sequelize,
     underscored: true,
     timestamps: false,
     modelName: 'user'
   })
-  User.sync()
+  await User.sync()
 }
 
 module.exports = makeModel

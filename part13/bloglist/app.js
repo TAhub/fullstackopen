@@ -3,8 +3,11 @@ const config = require('./utils/config')
 // Set up the SQL database.
 const { Sequelize, QueryTypes } = require('sequelize')
 const sequelize = new Sequelize(config.POSTGRES_URL)
-require('./models/blog')(sequelize)
-require('./models/user')(sequelize)
+// TODO: in retrospect, these individual model files do not seem to be the right way to structure models...
+// it is making things inconvenient
+require('./models/user')(sequelize).then(() => {
+  require('./models/blog')(sequelize)
+})
 
 // Make the express router.
 const express = require('express')
