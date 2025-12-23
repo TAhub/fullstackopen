@@ -20,7 +20,7 @@ usersRouter.post('/', async (request, response) => {
     const result = await request.models.user.create({ userName, name, passwordHash })
     return response.status(201).json(result)
   } catch (error) {
-    if (error.name === 'MongoServerError') {
+    if (error.name === 'SequelizeUniqueConstraintError') {
       response.status(400).json({ error: 'userName is already taken' })
     } else if (error.name === 'ValidationError') {
       if (error.errors.userName !== undefined) {
