@@ -1,30 +1,33 @@
 const { Sequelize, Model, DataTypes } = require('sequelize')
 
 const makeModel = (sequelize) => {
-  const User = sequelize.define(
-    'user',
-    {
-      userName: {
-        type: DataTypes.TEXT,
-        primaryKey: true
-      },
-      name: {
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
-      passwordHash: {
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
-      // TODO: blogs list? maybe not needed, with joins...
-      // TODO: make sure passwordHash is not revealed to user...
-    }, {
-      sequelize,
-      underscored: true,
-      timestamps: false,
-      modelName: 'blog'
+  class User extends Model {
+    toJSON() {
+      const json = super.toJSON()
+      delete json.passwordHash
+      return json
     }
-  )
+  }
+  User.init({
+    userName: {
+      type: DataTypes.TEXT,
+      primaryKey: true
+    },
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    passwordHash: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    // TODO: blogs list? maybe not needed, with joins...
+  }, {
+    sequelize,
+    underscored: true,
+    timestamps: false,
+    modelName: 'user'
+  })
   User.sync()
 }
 
