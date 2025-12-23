@@ -1,3 +1,36 @@
+const { Sequelize, Model, DataTypes } = require('sequelize')
+
+const makeModel = (sequelize) => {
+  const User = sequelize.define(
+    'user',
+    {
+      userName: {
+        type: DataTypes.TEXT,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      passwordHash: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      // TODO: blogs list? maybe not needed, with joins...
+      // TODO: make sure passwordHash is not revealed to user...
+    }, {
+      sequelize,
+      underscored: true,
+      timestamps: false,
+      modelName: 'blog'
+    }
+  )
+  User.sync()
+}
+
+module.exports = makeModel
+
+/*
 const mongoose = require('mongoose')
 
 const userSchema = mongoose.Schema({
@@ -32,3 +65,4 @@ userSchema.set('toJSON', {
 })
 
 module.exports = mongoose.model('User', userSchema)
+*/

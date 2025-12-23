@@ -1,6 +1,4 @@
 const blogsRouter = require('express').Router()
-const Blog = require('../models/blog')
-const User = require('../models/user')
 const middleware = require('../utils/middleware')
 
 const checkIfUserIncorrect = (request, blog) => {
@@ -15,15 +13,17 @@ const checkIfUserIncorrect = (request, blog) => {
 }
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', { userName: 1, name: 1 })
+  const blogs = await request.models.blog.findAll()
   response.json(blogs)
 })
 
 blogsRouter.post('/:id/comments', async (request, response) => {
+  // TODO: implement
+  /*
   if (request.body.text === undefined) {
     return response.status(400).send({ error: 'malformatted comment' })
   }
-  const blog = await Blog.findById(request.params.id)
+  const blog = await request.models.Blog.findById(request.params.id)
   if (!blog) {
     return response.status(404).end()
   }
@@ -33,9 +33,12 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   blog.comments = blog.comments.concat(request.body.text)
   const updatedBlog = await blog.save()
   response.json(updatedBlog)
+  */
 })
 
 blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
+  // TODO: implement
+  /*
   if (request.body.author === undefined || request.body.title === undefined) {
     return response.status(400).send({ error: 'malformatted blog' })
   }
@@ -54,10 +57,13 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   user.blogs = user.blogs.concat(result._id)
   await user.save()
   response.status(201).json(result)
+  */
 })
 
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
+  // TODO: implement
+  /*
+  const blog = await request.models.Blog.findById(request.params.id)
   if (!blog) {
     return response.status(404).end()
   }
@@ -71,10 +77,13 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   const updatedBlog = await blog.save()
   updatedBlog.user = user
   response.json(updatedBlog)
+  */
 })
 
 blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
+  // TODO: implement
+  /*
+  const blog = await request.models.Blog.findById(request.params.id)
   if (blog.user === undefined) {
     return response.status(401).send({ error: 'no-one can delete userless blogs. NO-ONE!' })
   }
@@ -87,8 +96,9 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) =
     user.blogs = user.blogs.splice(idx)
     await user.save()
   }
-  await Blog.findByIdAndDelete(request.params.id)
+  await request.models.Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
+  */
 })
 
 module.exports = blogsRouter
