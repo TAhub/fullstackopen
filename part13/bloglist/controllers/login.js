@@ -4,10 +4,8 @@ const loginRouter = require('express').Router()
 const config = require('../utils/config')
 
 loginRouter.post('/', async (request, response) => {
-  // TODO: implement
-  /*
   const { userName, password } = request.body
-  const user = await request.models.User.findOne({ userName })
+  const user = await request.models.user.findByPk(userName)
   if (user === null) {
     return response.status(401).json({
       error: 'invalid userName or password'
@@ -23,7 +21,6 @@ loginRouter.post('/', async (request, response) => {
     id: user._id
   }, config.TOKEN_SECRET)
   response.status(200).send({ token, userName: user.userName, name: user.name })
-  */
 })
 
 module.exports = loginRouter
