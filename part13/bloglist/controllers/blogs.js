@@ -61,9 +61,7 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 })
 
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
-  // TODO: implement
-  /*
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findByPk(request.params.id)
   if (!blog) {
     return response.status(404).end()
   }
@@ -71,13 +69,16 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   if (error) {
     return response.status(401).send({ error })
   }
-  blog.author = request.body.author
-  blog.title = request.body.title
-  blog.likes = request.body.likes
-  const updatedBlog = await blog.save()
-  updatedBlog.user = user
-  response.json(updatedBlog)
-  */
+  try {
+    blog.author = request.body.author
+    blog.title = request.body.title
+    blog.likes = request.body.likes
+    await blog.save()
+    response.json(blog)
+  } catch (error) {
+    console.log('update blog error', error)
+    return response.status(400).json(error)
+  }
 })
 
 blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {

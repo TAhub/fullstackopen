@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
+const { User } = require('../models')
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
@@ -14,7 +15,7 @@ const userExtractor = async (request, response, next) => {
     if (request.token) {
       const decodedToken = jwt.verify(request.token, config.TOKEN_SECRET)
       if (decodedToken.username) {
-        const user = await request.models.user.findByPk(decodedToken.username)
+        const user = await User.findByPk(decodedToken.username)
         if (user) {
           request.user = user
         }
