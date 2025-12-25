@@ -35,11 +35,10 @@ usersRouter.post('/', async (request, response) => {
 })
 
 usersRouter.delete('/:id', async (request, response) => {
-  // TODO: implement
-  /*
-  await User.findByIdAndDelete(request.params.id)
+  const user = await User.findByPk(request.params.id)
+  console.log('user', user)
+  await user.destroy()
   response.status(204).end()
-  */
 })
 
 module.exports = usersRouter
