@@ -24,11 +24,4 @@ const userExtractor = async (request, response, next) => {
   next()
 }
 
-const makeModelProvider = (sequelize) => {
-  return async (request, response, next) => {
-    request.models = sequelize.models
-    next()
-  }
-}
-
-module.exports = { tokenExtractor, userExtractor, makeModelProvider }
+module.exports = { tokenExtractor, userExtractor }

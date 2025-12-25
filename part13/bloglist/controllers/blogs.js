@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const middleware = require('../utils/middleware')
+const { User, Blog } = require('../models')
 
 const checkIfUserIncorrect = (request, blog) => {
   const user = request.user
@@ -13,7 +14,7 @@ const checkIfUserIncorrect = (request, blog) => {
 }
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await request.models.blog.findAll()
+  const blogs = await Blog.findAll()
   response.json(blogs)
 })
 
@@ -23,7 +24,7 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   if (request.body.text === undefined) {
     return response.status(400).send({ error: 'malformatted comment' })
   }
-  const blog = await request.models.Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id)
   if (!blog) {
     return response.status(404).end()
   }
@@ -45,7 +46,7 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
     return response.status(401).send({ error: 'invalid token' })
   }
   try {
-    const result = await request.models.blog.create({
+    const result = await Blog.create({
       title: request.body.title,
       author: request.body.author,
       url: request.body.url,
@@ -62,7 +63,7 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
 blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
   // TODO: implement
   /*
-  const blog = await request.models.Blog.findById(request.params.id)
+  const blog = await Blog.findById(request.params.id)
   if (!blog) {
     return response.status(404).end()
   }
@@ -80,7 +81,7 @@ blogsRouter.put('/:id', middleware.userExtractor, async (request, response) => {
 })
 
 blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
-  const blog = await request.models.blog.findByPk(request.params.id)
+  const blog = await Blog.findByPk(request.params.id)
   if (blog.user === undefined) {
     return response.status(401).send({ error: 'no-one can delete userless blogs. NO-ONE!' })
   }

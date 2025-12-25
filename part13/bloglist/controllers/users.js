@@ -1,9 +1,10 @@
 const usersRouter = require('express').Router()
 const bcrypt = require('bcrypt')
 const config = require('../utils/config')
+const { User } = require('../models')
 
 usersRouter.get('/', async (request, response) => {
-  const users = await request.models.user.findAll()
+  const users = await User.findAll()
   response.json(users)
 })
 
@@ -17,7 +18,7 @@ usersRouter.post('/', async (request, response) => {
   }
   const passwordHash = await bcrypt.hash(password, config.PASSWORD_HASH_SALT_ROUNDS)
   try {
-    const result = await request.models.user.create({ userName, name, passwordHash })
+    const result = await User.create({ userName, name, passwordHash })
     return response.status(201).json(result)
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -36,7 +37,7 @@ usersRouter.post('/', async (request, response) => {
 usersRouter.delete('/:id', async (request, response) => {
   // TODO: implement
   /*
-  await request.models.user.findByIdAndDelete(request.params.id)
+  await User.findByIdAndDelete(request.params.id)
   response.status(204).end()
   */
 })
